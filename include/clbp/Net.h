@@ -3,13 +3,13 @@
 #include "Layer.h"
 
 
-class IcoNet
+class Net
 {
 public:
-    IcoNet(int _nLayers, int* _nNeurons, int _nInputs);
-    ~IcoNet();
-    IcoLayer* getLayer(int _layerIndex);
-    void initWeights(IcoNeuron::weightInitMethod _wim, IcoNeuron::biasInitMethod _bim);
+    Net(int _nLayers, int* _nNeurons, int _nInputs);
+    ~Net();
+    Layer* getLayer(int _layerIndex);
+    void initWeights(Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim);
 
     void setLearningRate(double _learningRate);
     void setInputs(double* _inputs);
@@ -33,7 +33,7 @@ private:
     int nInputs=0;
     int nOutputs=0;
     double* inputs=0;
-    IcoLayer** layers=0;
+    Layer** layers=0;
     double learningRate=0;
     double weightDistance=0;
     double weightChange=0;

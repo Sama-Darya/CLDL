@@ -3,22 +3,22 @@
 
 #include <fstream>
 
-IcoLayer::IcoLayer(int _nNeurons, int _nInputs)
+Layer::Layer(int _nNeurons, int _nInputs)
 {
     nNeurons = _nNeurons; // number of neurons in this layer
     nInputs = _nInputs; // number of inputs to each neuron
-    neurons = new IcoNeuron*[nNeurons];
+    neurons = new Neuron*[nNeurons];
     /* dynamic allocation of memory to n number of
      * neuron-pointers and returning a pointer, "neurons",
      * to the first element */
     for (int i=0;i<nNeurons;i++){
-        neurons[i]=new IcoNeuron(nInputs);
+        neurons[i]=new Neuron(nInputs);
     }
     /* each element of "neurons" pointer is itself a pointer
      * to a neuron object with specific no. of inputs*/
 }
 
-IcoLayer::~IcoLayer(){
+Layer::~Layer(){
     for(int i=0;i<nNeurons;i++) {
         delete neurons[i];
     }
@@ -28,10 +28,10 @@ IcoLayer::~IcoLayer(){
      * memory allocation created by "new" */
 }
 
-void IcoLayer::setInputs(double* _inputs){
+void Layer::setInputs(double* _inputs){
     inputs=_inputs;
     for (int j=0; j<nInputs; j++){
-        IcoNeuron** neuronsp = neurons;//point to the 1st neuron
+        Neuron** neuronsp = neurons;//point to the 1st neuron
         /* sets a temporarily pointer to neuron-pointers
          * within the scope of this function. this is inside
          * the loop, so that it is set to the first neuron
@@ -46,88 +46,88 @@ void IcoLayer::setInputs(double* _inputs){
     }
 }
 
-void IcoLayer::propInputs(int _index, double _value){
+void Layer::propInputs(int _index, double _value){
     for (int i=0; i<nNeurons; i++){
         neurons[i]->propInputs(_index, _value);
     }
 }
 
-void IcoLayer::calcOutputs(){
+void Layer::calcOutputs(){
     for (int i=0; i<nNeurons; i++){
         neurons[i]->calcOutput();
     }
 }
 
-void IcoLayer::setError(double _leadError){
+void Layer::setError(double _leadError){
     /* this is only for the final layer */
     for (int i=0; i<nNeurons; i++){
         neurons[i]->setError(_leadError);
     }
 }
 
-void IcoLayer::propError(int _neuronIndex, double _nextSum){
+void Layer::propError(int _neuronIndex, double _nextSum){
     neurons[_neuronIndex]->propError(_nextSum);
 }
 
-double IcoLayer::getError(int _neuronIndex){
+double Layer::getError(int _neuronIndex){
     return (neurons[_neuronIndex]->getError());
 }
 
-double IcoLayer::getSumOutput(int _neuronIndex){
+double Layer::getSumOutput(int _neuronIndex){
     return (neurons[_neuronIndex]->getSumOutput());
 }
 
-double IcoLayer::getWeights(int _neuronIndex, int _weightIndex){
+double Layer::getWeights(int _neuronIndex, int _weightIndex){
     return (neurons[_neuronIndex]->getWeights(_weightIndex));
 }
 
-double IcoLayer::getInitWeight(int _neuronIndex, int _weightIndex){
+double Layer::getInitWeight(int _neuronIndex, int _weightIndex){
     return (neurons[_neuronIndex]->getInitWeights(_weightIndex));
 }
 
-double IcoLayer::getWeightChange(){
+double Layer::getWeightChange(){
     for (int i=0; i<nNeurons; i++){
         weightChange += neurons[i]->getWeightChange();
     }
 
-    //cout<< "IcoLayer: WeightChange is: " << weightChange << endl;
+    //cout<< "Layer: WeightChange is: " << weightChange << endl;
     return (weightChange);
 }
 
-double IcoLayer::getWeightDistance(){
+double Layer::getWeightDistance(){
     weightDistance=sqrt(weightChange);
     return (weightDistance);
 }
 
-double IcoLayer::getOutput(int _neuronIndex){
+double Layer::getOutput(int _neuronIndex){
     return (neurons[_neuronIndex]->getOutput());
 }
 
 
-void IcoLayer::initWeights(IcoNeuron::weightInitMethod _wim, IcoNeuron::biasInitMethod _bim){
+void Layer::initWeights(Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim){
     for (int i=0; i<nNeurons; i++){
         neurons[i]->initWeights(_wim, _bim);
     }
 }
 
-void IcoLayer::setlearningRate(double _learningRate){
+void Layer::setlearningRate(double _learningRate){
     learningRate=_learningRate;
     for (int i=0; i<nNeurons; i++){
         neurons[i]->setLearningRate(learningRate);
     }
 }
 
-void IcoLayer::updateWeights(){
+void Layer::updateWeights(){
     for (int i=0; i<nNeurons; i++){
         neurons[i]->updateWeights();
     }
 }
 
-int IcoLayer::getnNeurons(){
+int Layer::getnNeurons(){
     return (nNeurons);
 }
 
-int IcoLayer::saveWeights(int _layerIndex, int _neuronCount){
+int Layer::saveWeights(int _layerIndex, int _neuronCount){
     char l = '0';
     char n = '0';
     l += _layerIndex + 1;
@@ -143,7 +143,7 @@ int IcoLayer::saveWeights(int _layerIndex, int _neuronCount){
     return (_neuronCount);
 }
 
-void IcoLayer::snapWeights(int _layerIndex){
+void Layer::snapWeights(int _layerIndex){
     std::ofstream wfile;
     char l = '0';
     l += _layerIndex + 1;
@@ -160,12 +160,12 @@ void IcoLayer::snapWeights(int _layerIndex){
     wfile.close();
 }
 
-IcoNeuron* IcoLayer::getNeuron(int _neuronIndex){
+Neuron* Layer::getNeuron(int _neuronIndex){
     assert(_neuronIndex < nNeurons);
     return (neurons[_neuronIndex]);
 }
 
-void IcoLayer::printLayer(){
+void Layer::printLayer(){
     cout<< "\t This layer has " << nNeurons << " Neurons" <<endl;
     cout<< "\t There are " << nInputs << " inputs to this layer" <<endl;
     for (int i=0; i<nNeurons; i++){

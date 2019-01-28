@@ -5,7 +5,7 @@
 int main()
 {
     int line = 0;
-    IcoNet *icoNet;
+    Net *net;
     constexpr int nLayers=2;
     int nNeurons[nLayers]={2,1};
     int* nNeuronsP=nNeurons;
@@ -15,26 +15,26 @@ int main()
     double leadError=-10;
     double learningRate=0.01;
 
-    icoNet= new IcoNet(nLayers, nNeuronsP, nInputs);
-    icoNet->initWeights(IcoNeuron::W_ONES, IcoNeuron::B_NONE);
-    icoNet->setLearningRate(learningRate);
+    net= new Net(nLayers, nNeuronsP, nInputs);
+    net->initWeights(Neuron::W_ONES, Neuron::B_NONE);
+    net->setLearningRate(learningRate);
 
-    icoNet->initWeights(IcoNeuron::W_ONES, IcoNeuron::B_NONE);
-    icoNet->setInputs(inputsp);
-    icoNet->propInputs();
-    icoNet->setError(leadError);
-    icoNet->propError();
-    icoNet->printNetwork();
-    icoNet->updateWeights();
-    icoNet->saveWeights();
-    double weightDistance=icoNet->getWeightDistance();
+    net->initWeights(Neuron::W_ONES, Neuron::B_NONE);
+    net->setInputs(inputsp);
+    net->propInputs();
+    net->setError(leadError);
+    net->propError();
+    net->printNetwork();
+    net->updateWeights();
+    net->saveWeights();
+    double weightDistance=net->getWeightDistance();
     line++;
     std::ofstream myfile2;
     myfile2.open ("weights2.txt", fstream::app);
     myfile2 << line << " " << weightDistance << "\n";
     myfile2.close();
 
-    delete icoNet;
+    delete net;
     return 0;
 
 }

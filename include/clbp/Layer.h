@@ -2,14 +2,14 @@
 #include "Neuron.h"
 
 
-class IcoLayer
+class Layer
 {
 public:
-    IcoLayer(int _nNeurons, int _nInputs);
-    ~IcoLayer();
+    Layer(int _nNeurons, int _nInputs);
+    ~Layer();
 
     void setInputs( double* _inputs); //only for the first layer
-    void initWeights(IcoNeuron::weightInitMethod _wim, IcoNeuron::biasInitMethod _bim);
+    void initWeights(Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim);
     void calcOutputs();
     double getOutput(int _neuronIndex);
     double getSumOutput(int _neuronIndex);
@@ -29,13 +29,13 @@ public:
     int saveWeights(int _layerIndex, int _neuronCount);
     void snapWeights(int _layerIndex); // This one just saves the final weights i.e. overwrites them
 
-    IcoNeuron* getNeuron(int _neuronIndex);
+    Neuron* getNeuron(int _neuronIndex);
 
 private:
     int nNeurons=0;
     int nInputs=0;
     double* inputs=0;
-    IcoNeuron** neurons=0;
+    Neuron** neurons=0;
     double learningRate=0;
     double weightDistance=0;
     double weightChange=0;

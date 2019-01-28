@@ -9,7 +9,7 @@
 
 using namespace std;
 
-IcoNeuron::IcoNeuron(int _nInputs)
+Neuron::Neuron(int _nInputs)
 {
      nInputs=_nInputs;
      weights = new double[nInputs];
@@ -17,13 +17,13 @@ IcoNeuron::IcoNeuron(int _nInputs)
      inputs = new double[nInputs];
 }
 
-IcoNeuron::~IcoNeuron(){
+Neuron::~Neuron(){
     delete [] weights;
     delete [] initialWeights;
     delete [] inputs;
 }
 
-void IcoNeuron::setInput(int _index,  double _value) {
+void Neuron::setInput(int _index,  double _value) {
     /* the seInput function sets one input value at the given index,
      * it has to be implemented in a loop inside the layer class to set
      * all the inputs associated with all the neurons in that layer*/
@@ -32,7 +32,7 @@ void IcoNeuron::setInput(int _index,  double _value) {
     inputs[_index] = _value;
 }
 
-void IcoNeuron::propInputs(int _index,  double _value){
+void Neuron::propInputs(int _index,  double _value){
     /*works like setInput function expect it only applies
      * to the neurons in the hidden and output layers
      * and not the input layer*/
@@ -40,7 +40,7 @@ void IcoNeuron::propInputs(int _index,  double _value){
     inputs[_index] = _value;
 }
 
-void IcoNeuron::initWeights(weightInitMethod _wim, biasInitMethod _bim){
+void Neuron::initWeights(weightInitMethod _wim, biasInitMethod _bim){
     for (int i=0; i<nInputs; i++){
         switch (_wim){
         case W_ZEROS:
@@ -68,7 +68,7 @@ void IcoNeuron::initWeights(weightInitMethod _wim, biasInitMethod _bim){
     }
 }
 
-void IcoNeuron::calcOutput(){
+void Neuron::calcOutput(){
     double* inputsp= inputs;
     double* weightsp= weights;
         /* making copies of the pointers for the scope of this
@@ -86,82 +86,82 @@ void IcoNeuron::calcOutput(){
     doActivation(sum);
 }
 
-double IcoNeuron::getOutput(){
+double Neuron::getOutput(){
     return (output);
 }
 
-double IcoNeuron::getSumOutput(){
+double Neuron::getSumOutput(){
     return (sum);
 }
 
-double IcoNeuron::doActivation(double _sum){
+double Neuron::doActivation(double _sum){
     output=1/(1+(exp(-_sum))) - 0.5;
     return (output);
 }
 
-double IcoNeuron::doActivationPrime(double _input){
+double Neuron::doActivationPrime(double _input){
     double result= doActivation(_input) * (1 - doActivation(_input));
     return (result);
 }
 
-void IcoNeuron::setLearningRate(double _learningRate){
+void Neuron::setLearningRate(double _learningRate){
     learningRate=_learningRate;
 }
 
-void IcoNeuron::setError(double _leadError){
+void Neuron::setError(double _leadError){
     error=0;
     error = _leadError + doActivationPrime(sum); // + doActivationPrime(sum);
     /*might take a different format to propError*/
 }
 
-void IcoNeuron::propError(double _nextSum){
+void Neuron::propError(double _nextSum){
     error=0;
     error = _nextSum + doActivationPrime(sum);
     //cout<< "_nextSum was: "<< _nextSum << "and dSigmadt is: " << doActivationPrime(sum) <<endl;
 }
 
-void IcoNeuron::updateWeights(){
+void Neuron::updateWeights(){
     for (int i=0; i<nInputs; i++){
         weights[i] -= learningRate * (error * inputs[i]); //
-        //weights[i] = IcoNeuron::doActivation(weights[i]); //normalised weights
-        //cout<< "IcoNeuron: internal error is: " << error << endl;
+        //weights[i] = Neuron::doActivation(weights[i]); //normalised weights
+        //cout<< "Neuron: internal error is: " << error << endl;
     }
 }
 
-double IcoNeuron::getWeightChange(){
+double Neuron::getWeightChange(){
     double weightsDifference =0;
     for (int i=0; i<nInputs; i++){
         weightsDifference = weights[i] - initialWeights[i];
         weightChange += weightsDifference*weightsDifference;
     }
-    //cout<< "IcoNeuron: WeightChange is: " << weightChange << endl;
+    //cout<< "Neuron: WeightChange is: " << weightChange << endl;
     return (weightChange);
 }
 
-double IcoNeuron::getWeightDistance(){
+double Neuron::getWeightDistance(){
     weightDistance=sqrt(weightChange);
     return (weightDistance);
 }
 
-double IcoNeuron::getError(){
+double Neuron::getError(){
     return (error);
 }
 
-int IcoNeuron::getnInputs(){
+int Neuron::getnInputs(){
     return (nInputs);
 }
 
-double IcoNeuron::getWeights(int _inputIndex){
+double Neuron::getWeights(int _inputIndex){
     assert((_inputIndex>=0)&&(_inputIndex<nInputs));
     return (weights[_inputIndex]);
 }
 
-double IcoNeuron::getInitWeights(int _inputIndex){
+double Neuron::getInitWeights(int _inputIndex){
     assert((_inputIndex>=0)&&(_inputIndex<nInputs));
     return (initialWeights[_inputIndex]);
 }
 
-void IcoNeuron::saveWeights(string _fileName){
+void Neuron::saveWeights(string _fileName){
     std::ofstream Icofile;
     Icofile.open(_fileName, fstream::app);
     for (int i=0; i<nInputs; i++){
@@ -171,7 +171,7 @@ void IcoNeuron::saveWeights(string _fileName){
     Icofile.close();
 }
 
-void IcoNeuron::printNeuron(){
+void Neuron::printNeuron(){
     cout<< "\t \t This neuron has " << nInputs << " inputs:";
     for (int i=0; i<nInputs; i++){
         cout<< " " << inputs[i];

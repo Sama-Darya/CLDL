@@ -9,11 +9,11 @@
 using namespace std;
 
 
-class IcoNeuron
+class Neuron
 {
 public:
-    IcoNeuron(int _nInputs);
-    ~IcoNeuron();
+    Neuron(int _nInputs);
+    ~Neuron();
     enum biasInitMethod{B_NONE= 0, B_RANDOM= 1};
     enum weightInitMethod{W_ZEROS= 0, W_ONES = 1, W_RANDOM = 2};
 

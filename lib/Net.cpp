@@ -1,6 +1,6 @@
-#include "Net.h"
-#include "Layer.h"
-#include "Neuron.h"
+#include "clbp/Net.h"
+#include "clbp/Layer.h"
+#include "clbp/Neuron.h"
 
 #include <iostream>
 

@@ -1,4 +1,5 @@
-#include "Neuron.h"
+#include "clbp/Neuron.h"
+
 #include <iostream>
 #include <ctgmath>
 #include <cstdlib>

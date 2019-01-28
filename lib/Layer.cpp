@@ -1,5 +1,5 @@
-#include "Layer.h"
-#include "Neuron.h"
+#include "clbp/Layer.h"
+#include "clbp/Neuron.h"
 
 #include <fstream>
 

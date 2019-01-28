@@ -1,4 +1,5 @@
-#include "Net.h"
+#include "clbp/Net.h"
+
 #include <fstream>
 
 int main()

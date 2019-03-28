@@ -12,7 +12,7 @@ public:
     void initWeights(Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim);
 
     void setLearningRate(double _learningRate);
-    void setInputs(double* _inputs);
+    void setInputs(const double* _inputs);
     void propInputs();
     void setError(double _leadError);
     void propError();
@@ -32,7 +32,7 @@ private:
     int nLayers=0;
     int nInputs=0;
     int nOutputs=0;
-    double* inputs=0;
+    const double* inputs=0;
     Layer** layers=0;
     double learningRate=0;
     double weightDistance=0;

@@ -8,7 +8,7 @@ public:
     Layer(int _nNeurons, int _nInputs);
     ~Layer();
 
-    void setInputs( double* _inputs); //only for the first layer
+    void setInputs(const double* _inputs); //only for the first layer
     void initWeights(Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim);
     void calcOutputs();
     double getOutput(int _neuronIndex);
@@ -34,7 +34,7 @@ public:
 private:
     int nNeurons=0;
     int nInputs=0;
-    double* inputs=0;
+    const double* inputs=0;
     Neuron** neurons=0;
     double learningRate=0;
     double weightDistance=0;

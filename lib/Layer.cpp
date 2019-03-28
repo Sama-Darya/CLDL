@@ -28,7 +28,7 @@ Layer::~Layer(){
      * memory allocation created by "new" */
 }
 
-void Layer::setInputs(double* _inputs){
+void Layer::setInputs(const double* _inputs){
     inputs=_inputs;
     for (int j=0; j<nInputs; j++){
         Neuron** neuronsp = neurons;//point to the 1st neuron

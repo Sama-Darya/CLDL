@@ -40,7 +40,7 @@ Net::~Net(){
     //delete[] inputs;
 }
 
-void Net::setInputs(double* _inputs){
+void Net::setInputs(const double* _inputs){
     inputs=_inputs;
     layers[0]->setInputs(inputs); //sets the inputs to the first layer only
 }

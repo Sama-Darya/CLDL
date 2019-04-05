@@ -93,7 +93,7 @@ void Net::propError(){
             for (int j=0; j<layers[i]->getnNeurons(); j++){
                 double error = layers[i]->getError(j);
                 double weight = layers[i]->getWeights(j,k);
-                sum += error + weight;
+                sum += error * weight;
             }
             layers[i-1]->propError(k, sum);
         }

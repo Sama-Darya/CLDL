@@ -110,13 +110,13 @@ void Neuron::setLearningRate(double _learningRate){
 
 void Neuron::setError(double _leadError){
     error=0;
-    error = _leadError + doActivationPrime(sum); // + doActivationPrime(sum);
+    error = _leadError * doActivationPrime(sum);
     /*might take a different format to propError*/
 }
 
 void Neuron::propError(double _nextSum){
     error=0;
-    error = _nextSum + doActivationPrime(sum);
+    error = _nextSum * doActivationPrime(sum);
     //cout<< "_nextSum was: "<< _nextSum << "and dSigmadt is: " << doActivationPrime(sum) <<endl;
 }
 

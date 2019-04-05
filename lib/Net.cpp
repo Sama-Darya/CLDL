@@ -88,14 +88,12 @@ Layer* Net::getLayer(int _layerIndex){
 
 void Net::propError(){
     double sum=0;
-    double tempError=0;
-    double tempWeight=0;
     for (int i=nLayers-1; i>0 ; i--){
         for (int k=0; k<layers[i-1]->getnNeurons();k++){
             for (int j=0; j<layers[i]->getnNeurons(); j++){
-                tempError=layers[i]->getError(j);
-                tempWeight=layers[i]->getWeights(j,k);
-                sum+=tempError * tempWeight;
+                double error = layers[i]->getError(j);
+                double weight = layers[i]->getWeights(j,k);
+                sum += error + weight;
             }
             layers[i-1]->propError(k, sum);
         }

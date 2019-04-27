@@ -100,8 +100,7 @@ double Neuron::doActivation(double _sum){
 }
 
 double Neuron::doActivationPrime(double _input){
-    double result= doActivation(_input) * (1 - doActivation(_input));
-    return (result);
+  return exp(-_input) / pow((exp(-_input) + 1), 2);
 }
 
 void Neuron::setLearningRate(double _learningRate){

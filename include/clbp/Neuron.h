@@ -54,6 +54,4 @@ private:
     double output=0;
     double learningRate=0;
     double sum=0;
-    int nNeurons=0;
-//    std::ofstream weightfiles[];
 };

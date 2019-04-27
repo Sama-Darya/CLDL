@@ -87,10 +87,10 @@ Layer* Net::getLayer(int _layerIndex){
 }
 
 void Net::propError(){
-    double sum=0;
-    for (int i=nLayers-1; i>0 ; i--){
-        for (int k=0; k<layers[i-1]->getnNeurons();k++){
-            for (int j=0; j<layers[i]->getnNeurons(); j++){
+    for (int i=nLayers-1; i>0 ; i--){ // i is idx of curr layer
+        double sum=0;
+        for (int k=0; k<layers[i-1]->getnNeurons();k++){ // k is neuron idx in prev layer
+            for (int j=0; j<layers[i]->getnNeurons(); j++){ // j is neuron idx in curr layer
                 double error = layers[i]->getError(j);
                 double weight = layers[i]->getWeights(j,k);
                 sum += error * weight;

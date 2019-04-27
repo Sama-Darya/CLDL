@@ -2,10 +2,13 @@
 
 #include <iostream>
 #include <ctgmath>
-#include <cstdlib>
-#include <cstdio>
 #include <cassert>
 #include <fstream>
+#include <random>
+
+static std::random_device rd;
+static std::mt19937 gen(rd());
+static std::uniform_real_distribution<double> dist(-1, 1);
 
 using namespace std;
 
@@ -50,7 +53,7 @@ void Neuron::initWeights(weightInitMethod _wim, biasInitMethod _bim){
             weights[i]=1;
             break;
         case W_RANDOM:
-            weights[i]=((double)rand()/RAND_MAX);
+            weights[i] = dist(gen);
              /* rand function generates a random function between
               * 0 and RAND_MAX, after the devision the weights are
               * set to a value between 0 and 1 */
@@ -63,7 +66,7 @@ void Neuron::initWeights(weightInitMethod _wim, biasInitMethod _bim){
         bias=0;
         break;
     case B_RANDOM:
-        bias=((double)rand()/RAND_MAX);
+        bias = dist(gen);
         break;
     }
 }

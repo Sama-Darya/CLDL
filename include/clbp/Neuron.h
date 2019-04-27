@@ -35,7 +35,6 @@ public:
     double getInitWeights(int _inputIndex);
     double getError();
     double getWeightChange();
-    double getWeightDistance();
     int getnInputs();
     void saveWeights(string _fileName);
 
@@ -50,8 +49,6 @@ private:
     double* inputs=0;
     double* weights=0;
     double* initialWeights=0;
-    double weightChange=0;
-    double weightDistance=0;
     double bias=0;
     double error=0;
     double output=0;

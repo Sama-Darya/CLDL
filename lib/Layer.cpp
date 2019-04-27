@@ -86,6 +86,7 @@ double Layer::getInitWeight(int _neuronIndex, int _weightIndex){
 }
 
 double Layer::getWeightChange(){
+  double weightChange = 0;
     for (int i=0; i<nNeurons; i++){
         weightChange += neurons[i]->getWeightChange();
     }
@@ -94,10 +95,6 @@ double Layer::getWeightChange(){
     return (weightChange);
 }
 
-double Layer::getWeightDistance(){
-    weightDistance=sqrt(weightChange);
-    return (weightDistance);
-}
 
 double Layer::getOutput(int _neuronIndex){
     return (neurons[_neuronIndex]->getOutput());

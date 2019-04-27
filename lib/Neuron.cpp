@@ -129,18 +129,13 @@ void Neuron::updateWeights(){
 }
 
 double Neuron::getWeightChange(){
-    double weightsDifference =0;
+    double weightChange =0;
     for (int i=0; i<nInputs; i++){
-        weightsDifference = weights[i] - initialWeights[i];
+        double weightsDifference = weights[i] - initialWeights[i];
         weightChange += weightsDifference*weightsDifference;
     }
     //cout<< "Neuron: WeightChange is: " << weightChange << endl;
-    return (weightChange);
-}
-
-double Neuron::getWeightDistance(){
-    weightDistance=sqrt(weightChange);
-    return (weightDistance);
+    return weightChange;
 }
 
 double Neuron::getError(){

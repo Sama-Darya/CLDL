@@ -114,13 +114,14 @@ void Net::updateWeights(){
 }
 
 double Net::getWeightDistance(){
+  double weightChange = 0;
     for (int i=0; i<nLayers; i++){
         weightChange += layers[i]->getWeightChange();
     }
-    weightDistance=sqrt(weightChange);
-    cout<< "Net: WeightDistance is: " << weightDistance << endl;
+    weightChange = sqrt(weightChange);
+    cout<< "Net: WeightDistance is: " << weightChange << endl;
 
-    return (weightDistance);
+    return (weightChange);
 }
 
 double Net::getWeights(int _layerIndex, int _neuronIndex, int _weightIndex){

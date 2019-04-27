@@ -22,7 +22,6 @@ public:
     double getError(int _neuronIndex);
     double getWeights(int _neuronIndex, int _weightIndex);
     double getInitWeight(int _neuronIndex, int _weightIndex);
-    double getWeightDistance();
     double getWeightChange();
     void setError(double _leadError);
     void updateWeights();
@@ -37,6 +36,4 @@ private:
     const double* inputs=0;
     Neuron** neurons=0;
     double learningRate=0;
-    double weightDistance=0;
-    double weightChange=0;
 };

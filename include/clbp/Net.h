@@ -35,7 +35,5 @@ private:
     const double* inputs=0;
     Layer** layers=0;
     double learningRate=0;
-    double weightDistance=0;
-    double weightChange=0;
     int nNeurons;
 };

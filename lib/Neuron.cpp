@@ -56,6 +56,8 @@ void Neuron::initWeights(weightInitMethod _wim, biasInitMethod _bim){
               * set to a value between 0 and 1 */
         }
         initialWeights[i]=weights[i];
+
+        //cout<<"INITIAL W: "<< initialWeights[i]<< endl;
         //saves the initial weights
     }
     switch (_bim){
@@ -108,32 +110,33 @@ void Neuron::setLearningRate(double _learningRate){
 }
 
 void Neuron::setError(double _leadError){
-    error=0;
+
     error = _leadError * doActivationPrime(sum);
     /*might take a different format to propError*/
 }
 
 void Neuron::propError(double _nextSum){
-    error=0;
-    error = _nextSum * doActivationPrime(sum);
+    error = _nextSum; //* doActivationPrime(sum);
     //cout<< "_nextSum was: "<< _nextSum << "and dSigmadt is: " << doActivationPrime(sum) <<endl;
 }
 
 void Neuron::updateWeights(){
     for (int i=0; i<nInputs; i++){
-        weights[i] -= learningRate * (error * inputs[i]); //
-        //weights[i] = Neuron::doActivation(weights[i]); //normalised weights
-        //cout<< "Neuron: internal error is: " << error << endl;
+        weights[i] += learningRate * (error * inputs[i]); //
+        if (error != 0){
+            cout<< "Neuron: weight: " << weights[i] << "  Neuron: error: " << error << "  Neuron: input: " << inputs[i] << endl;
+        }
     }
 }
 
 double Neuron::getWeightChange(){
     double weightChange =0;
+    double weightsDifference =0;
     for (int i=0; i<nInputs; i++){
-        double weightsDifference = weights[i] - initialWeights[i];
-        weightChange += weightsDifference*weightsDifference;
+        weightsDifference = weights[i] - initialWeights[i];
+        weightChange += weightsDifference * weightsDifference;
     }
-    //cout<< "Neuron: WeightChange is: " << weightChange << endl;
+    cout<< "Neuron: WeightChange is: " << weightChange << endl;
     return weightChange;
 }
 

@@ -87,19 +87,18 @@ Layer* Net::getLayer(int _layerIndex){
 }
 
 void Net::propError(){
-    for (int i=nLayers-1; i>0 ; i--){ // i is idx of curr layer
-        double sum=0;
-        for (int k=0; k<layers[i-1]->getnNeurons();k++){ // k is neuron idx in prev layer
-            for (int j=0; j<layers[i]->getnNeurons(); j++){ // j is neuron idx in curr layer
-                double error = layers[i]->getError(j);
-                double weight = layers[i]->getWeights(j,k);
+    for (int i=nLayers-2; i>-1 ; i--){ // i is idx of curr layer
+        for (int j=0; j<layers[i]->getnNeurons();j++){ // j is neuron idx in current layer
+            double sum=0;
+            for (int k=0; k<layers[i+1]->getnNeurons(); k++){ // j is neuron idx in next layer
+                double error = layers[i+1]->getError(k);
+                double weight = layers[i+1]->getWeights(k,j);
                 sum += error * weight;
             }
-            layers[i-1]->propError(k, sum);
+            layers[i]->propError(j, sum);
         }
     }
 }
-
 void Net::setError(double _leadError){
     /* this is only for the final layer */
     layers[nLayers-1]->setError(_leadError);
@@ -119,8 +118,16 @@ double Net::getWeightDistance(){
         weightChange += layers[i]->getWeightChange();
     }
     weightChange = sqrt(weightChange);
-    cout<< "Net: WeightDistance is: " << weightChange << endl;
+    // cout<< "Net: WeightDistance is: " << weightChange << endl;
 
+    return (weightChange);
+}
+
+double Net::getWeightDistanceLayer(int _layerIndex){
+  double weightChange = 0;
+    weightChange += layers[_layerIndex]->getWeightChange();
+    weightChange = sqrt(weightChange);
+    cout<< "Net: WeightDistance is: " << weightChange << endl;
     return (weightChange);
 }
 
@@ -143,7 +150,7 @@ int Net::getnNeurons(){
 void Net::saveWeights(){
     int neuronCount = 0;
     for (int i=0; i<nLayers; i++){
-        neuronCount += layers[i]->saveWeights(i, neuronCount);
+        //neuronCount += layers[i]->saveWeights(i, neuronCount);
         layers[i]->snapWeights(i);
     }
 }

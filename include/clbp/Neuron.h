@@ -54,4 +54,5 @@ private:
     double output=0;
     double learningRate=0;
     double sum=0;
+    //double weightChange=0;
 };

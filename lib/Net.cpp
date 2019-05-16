@@ -127,7 +127,7 @@ double Net::getWeightDistanceLayer(int _layerIndex){
   double weightChange = 0;
     weightChange += layers[_layerIndex]->getWeightChange();
     weightChange = sqrt(weightChange);
-    cout<< "Net: WeightDistance is: " << weightChange << endl;
+//    cout<< "Net: WeightDistance is: " << weightChange << endl;
     return (weightChange);
 }
 

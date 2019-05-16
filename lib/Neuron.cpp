@@ -119,16 +119,16 @@ void Neuron::setError(double _leadError){
 }
 
 void Neuron::propError(double _nextSum){
-    error = _nextSum; //* doActivationPrime(sum);
+    error = _nextSum * doActivationPrime(sum);
     //cout<< "_nextSum was: "<< _nextSum << "and dSigmadt is: " << doActivationPrime(sum) <<endl;
 }
 
 void Neuron::updateWeights(){
     for (int i=0; i<nInputs; i++){
         weights[i] += learningRate * (error * inputs[i]); //
-        if (error != 0){
-            cout<< "Neuron: weight: " << weights[i] << "  Neuron: error: " << error << "  Neuron: input: " << inputs[i] << endl;
-        }
+//        if (error != 0){
+//            cout<< "Neuron: weight: " << weights[i] << "  Neuron: error: " << error << "  Neuron: input: " << inputs[i] << endl;
+//        }
     }
 }
 
@@ -139,7 +139,7 @@ double Neuron::getWeightChange(){
         weightsDifference = weights[i] - initialWeights[i];
         weightChange += weightsDifference * weightsDifference;
     }
-    cout<< "Neuron: WeightChange is: " << weightChange << endl;
+//    cout<< "Neuron: WeightChange is: " << weightChange << endl;
     return weightChange;
 }
 

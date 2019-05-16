@@ -36,4 +36,5 @@ private:
     const double* inputs=0;
     Neuron** neurons=0;
     double learningRate=0;
+    //double weightChange=0;
 };

@@ -2,22 +2,19 @@
 
 #include <iostream>
 #include <ctgmath>
+#include <cstdlib>
+#include <cstdio>
 #include <cassert>
 #include <fstream>
-#include <random>
-
-static std::random_device rd;
-static std::mt19937 gen(rd());
-static std::uniform_real_distribution<double> dist(-1, 1);
 
 using namespace std;
 
 Neuron::Neuron(int _nInputs)
 {
-     nInputs=_nInputs;
-     weights = new double[nInputs];
-     initialWeights = new double[nInputs];
-     inputs = new double[nInputs];
+    nInputs=_nInputs;
+    weights = new double[nInputs];
+    initialWeights = new double[nInputs];
+    inputs = new double[nInputs];
 }
 
 Neuron::~Neuron(){
@@ -43,42 +40,48 @@ void Neuron::propInputs(int _index,  double _value){
     inputs[_index] = _value;
 }
 
-void Neuron::initWeights(weightInitMethod _wim, biasInitMethod _bim){
+void Neuron::initNeuron(weightInitMethod _wim, biasInitMethod _bim, Neuron::actMethod _am){
     for (int i=0; i<nInputs; i++){
         switch (_wim){
-        case W_ZEROS:
-            weights[i]=0;
-            break;
-        case W_ONES:
-            weights[i]=1;
-            break;
-        case W_RANDOM:
-            weights[i] = dist(gen);
-             /* rand function generates a random function between
-              * 0 and RAND_MAX, after the devision the weights are
-              * set to a value between 0 and 1 */
+            case W_ZEROS:
+                weights[i]=0;
+                break;
+            case W_ONES:
+                weights[i]=1;
+                break;
+            case W_RANDOM:
+                weights[i]=((double)rand()/RAND_MAX);
+                /* rand function generates a random function between
+                 * 0 and RAND_MAX, after the devision the weights are
+                 * set to a value between 0 and 1 */
         }
         initialWeights[i]=weights[i];
-
-        //cout<<"INITIAL W: "<< initialWeights[i]<< endl;
         //saves the initial weights
     }
     switch (_bim){
-    case B_NONE:
-        bias=0;
-        break;
-    case B_RANDOM:
-        bias = dist(gen);
-        break;
+        case B_NONE:
+            bias=0;
+            break;
+        case B_RANDOM:
+            bias=((double)rand()/RAND_MAX);
+            break;
+    }
+    switch(_am){
+        case Act_Sigmoid:
+            actMet = 0;
+        case Act_Tanh:
+            actMet = 1;
+        case Act_NONE:
+            actMet = 2;
     }
 }
 
 void Neuron::calcOutput(){
     double* inputsp= inputs;
     double* weightsp= weights;
-        /* making copies of the pointers for the scope of this
-     * funciton so that the original pinters are unchanged and can
-     * be used as a reference in other functiond simultaneously */
+    /* making copies of the pointers for the scope of this
+ * funciton so that the original pinters are unchanged and can
+ * be used as a reference in other functiond simultaneously */
     sum=0;
     for (int i=0; i<nInputs; i++){
         double input= *inputsp;
@@ -100,12 +103,28 @@ double Neuron::getSumOutput(){
 }
 
 double Neuron::doActivation(double _sum){
-    output=1/(1+(exp(-_sum))) - 0.5;
+    switch(actMet){
+        case 0:
+            output= 1/(1+(exp(-_sum))) - 0.5;
+        case 1:
+            output = tanh(_sum);
+        case 2:
+            output = _sum;
+    }
     return (output);
 }
 
 double Neuron::doActivationPrime(double _input){
-  return exp(-_input) / pow((exp(-_input) + 1), 2);
+    double result = 0;
+    switch(actMet){
+        case 0:
+            result = exp(-_input) / pow((exp(-_input) + 1),2);
+        case 1:
+            result = 1 - pow (tanh(_input), 2);
+        case 2:
+            result = 1;
+    }
+    return (result);
 }
 
 void Neuron::setLearningRate(double _learningRate){
@@ -113,34 +132,38 @@ void Neuron::setLearningRate(double _learningRate){
 }
 
 void Neuron::setError(double _leadError){
-
-    error = _leadError * doActivationPrime(sum);
+    error=0;
+    error = _leadError + doActivationPrime(sum); // + doActivationPrime(sum);
     /*might take a different format to propError*/
 }
 
 void Neuron::propError(double _nextSum){
-    error = _nextSum * doActivationPrime(sum);
+    error=0;
+    error = _nextSum + doActivationPrime(sum);
     //cout<< "_nextSum was: "<< _nextSum << "and dSigmadt is: " << doActivationPrime(sum) <<endl;
 }
 
 void Neuron::updateWeights(){
     for (int i=0; i<nInputs; i++){
         weights[i] += learningRate * (error * inputs[i]); //
-//        if (error != 0){
-//            cout<< "Neuron: weight: " << weights[i] << "  Neuron: error: " << error << "  Neuron: input: " << inputs[i] << endl;
-//        }
+        //weights[i] = Neuron::doActivation(weights[i]); //normalised weights
+        //cout<< "Neuron: internal error is: " << error << endl;
     }
 }
 
 double Neuron::getWeightChange(){
-    double weightChange =0;
     double weightsDifference =0;
     for (int i=0; i<nInputs; i++){
         weightsDifference = weights[i] - initialWeights[i];
         weightChange += weightsDifference * weightsDifference;
     }
-//    cout<< "Neuron: WeightChange is: " << weightChange << endl;
-    return weightChange;
+    //cout<< "Neuron: WeightChange is: " << weightChange << endl;
+    return (weightChange);
+}
+
+double Neuron::getWeightDistance(){
+    double weightDistance=sqrt(weightChange);
+    return (weightDistance);
 }
 
 double Neuron::getError(){
@@ -185,8 +208,3 @@ void Neuron::printNeuron(){
     cout<< "\t \t The bias of the neuron is: " << bias << endl;
     cout<< "\t \t The sum and output of this neuron are: " << sum << ", " << output << endl;
 }
-
-
-
-
-

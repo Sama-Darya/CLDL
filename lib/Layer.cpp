@@ -86,23 +86,27 @@ double Layer::getInitWeight(int _neuronIndex, int _weightIndex){
 }
 
 double Layer::getWeightChange(){
-    double weightChange = 0;
     for (int i=0; i<nNeurons; i++){
         weightChange += neurons[i]->getWeightChange();
     }
-//    cout<< "Layer: WeightChange is: " << weightChange << endl;
+
+    //cout<< "Layer: WeightChange is: " << weightChange << endl;
     return (weightChange);
 }
 
+double Layer::getWeightDistance(){
+    double weightDistance=sqrt(weightChange);
+    return (weightDistance);
+}
 
 double Layer::getOutput(int _neuronIndex){
     return (neurons[_neuronIndex]->getOutput());
 }
 
 
-void Layer::initWeights(Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim){
+void Layer::initLayer(Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim, Neuron::actMethod _am){
     for (int i=0; i<nNeurons; i++){
-        neurons[i]->initWeights(_wim, _bim);
+        neurons[i]->initNeuron(_wim, _bim, _am);
     }
 }
 
@@ -170,4 +174,3 @@ void Layer::printLayer(){
     }
 
 }
-

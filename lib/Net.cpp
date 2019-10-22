@@ -30,6 +30,8 @@ Net::Net(int _nLayers, int* _nNeurons, int _nInputs)
     for (int i=0; i<nLayers; i++){
         nNeurons += layers[i]->getnNeurons();
     }
+    
+    cout << "number of inputs are: " << nInputs << endl;
 }
 
 Net::~Net(){
@@ -125,6 +127,10 @@ double Net::getWeightDistance(){
     // cout<< "Net: WeightDistance is: " << weightDistance << endl;
 
     return (weightDistance);
+}
+
+double Net::getLayerWeightDistance(int _layerIndex){
+    return sqrt(layers[_layerIndex]->getWeightChange());
 }
 
 double Net::getWeights(int _layerIndex, int _neuronIndex, int _weightIndex){

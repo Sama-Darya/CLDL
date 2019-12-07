@@ -1,9 +1,22 @@
 #pragma once
 
+
+#include <stdio.h>
 #include <assert.h>
 #include <iostream>
+#include <ctgmath>
+#include <cstdlib>
+#include <cstdio>
+#include <cassert>
+#include <fstream>
+#include <iostream>
 #include <math.h>
-#include <stdio.h>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <numeric>
+#include <vector>
+
 
 using namespace std;
 
@@ -21,10 +34,10 @@ public:
     void setInput(int _index, double _value);
     void propInputs(int _index, double _value);
     void calcOutput();
-    void genOutput();
     void updateWeights();
     double doActivation(double _sum);
     double doActivationPrime(double _input);
+    void setGlobalError(double _globalError);
     void setError(double _nextSum);  // for the output layer only
     void propError(double _nextSum); // used for all layers except the output
 
@@ -33,6 +46,10 @@ public:
     double getWeights(int _inputIndex);
     double getInitWeights(int _inputIndex);
     double getError();
+    double getMaxWeight();
+    double getMinWeight();
+    double getSumWeight();
+    double getGlobalError();
     double getWeightChange();
     double getWeightDistance();
     int getnInputs();
@@ -51,9 +68,14 @@ private:
     double *initialWeights = 0;
     double bias = 0;
     double error = 0;
+    double globalError = 0;
     double output = 0;
     double learningRate = 0;
     double sum = 0;
+    double weightSum = 0;
+    double maxWeight = 1;
+    double minWeight = 1;
     double weightChange=0;
+    double weightsDifference = 0;
     int actMet = 0;
 };

@@ -1,9 +1,27 @@
 #include "clbp/Layer.h"
 #include "clbp/Neuron.h"
 
+#include <stdio.h>
+#include <assert.h>
+#include <iostream>
+#include <ctgmath>
+#include <cstdlib>
+#include <cstdio>
+#include <cassert>
+#include <fstream>
+#include <iostream>
+#include <math.h>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <numeric>
+#include <vector>
+
+
 #include <fstream>
 
 Layer::Layer(int _nNeurons, int _nInputs)
+
 {
     nNeurons = _nNeurons; // number of neurons in this layer
     nInputs = _nInputs; // number of inputs to each neuron
@@ -59,10 +77,11 @@ void Layer::calcOutputs(){
     }
 }
 
-void Layer::genOutput(){
-    for (int i=0; i<nNeurons; i++){
-        neurons[i]->genOutput();
-    }
+void Layer::setGlobalError(double _globalError){
+  globalError = _globalError;
+  for (int i=0; i<nNeurons; i++){
+      neurons[i]->setGlobalError(globalError);
+  }
 }
 
 void Layer::setError(double _leadError){
@@ -74,10 +93,21 @@ void Layer::setError(double _leadError){
 
 void Layer::propError(int _neuronIndex, double _nextSum){
     neurons[_neuronIndex]->propError(_nextSum);
+    // if (_neuronIndex == 0){
+    //   cout << " BP>> acc2=Sum(W*E): " << _nextSum;
+    //   cout << " e=acc*sigmoid'(acc1): " << neurons[_neuronIndex]->getError();
+    //   cout << " FP>> acc1=Sum(w.in): " << neurons[_neuronIndex]->getSumOutput();
+    //   cout << " sigmoid(sum): " << neurons[_neuronIndex]->getOutput();
+    //   cout << " " << endl;
+    // }
 }
 
 double Layer::getError(int _neuronIndex){
     return (neurons[_neuronIndex]->getError());
+}
+
+double Layer::getGlobalError(int _neuronIndex){
+    return (neurons[_neuronIndex]->getGlobalError());
 }
 
 double Layer::getSumOutput(int _neuronIndex){
@@ -93,17 +123,16 @@ double Layer::getInitWeight(int _neuronIndex, int _weightIndex){
 }
 
 double Layer::getWeightChange(){
+    weightChange=0;
     for (int i=0; i<nNeurons; i++){
         weightChange += neurons[i]->getWeightChange();
     }
-
     //cout<< "Layer: WeightChange is: " << weightChange << endl;
     return (weightChange);
 }
 
 double Layer::getWeightDistance(){
-    double weightDistance=sqrt(weightChange);
-    return (weightDistance);
+    return sqrt(weightChange);
 }
 
 double Layer::getOutput(int _neuronIndex){

@@ -1,10 +1,27 @@
 #pragma once
 
+#include <stdio.h>
+#include <assert.h>
+#include <iostream>
+#include <ctgmath>
+#include <cstdlib>
+#include <cstdio>
+#include <cassert>
+#include <fstream>
+#include <iostream>
+#include <math.h>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <numeric>
+#include <vector>
+
 #include "Layer.h"
 
 class Net {
 public:
     Net(int _nLayers, int *_nNeurons, int _nInputs);
+
     ~Net();
     Layer *getLayer(int _layerIndex);
     void initNetwork(Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim, Neuron::actMethod _am);
@@ -12,6 +29,7 @@ public:
     void setLearningRate(double _learningRate);
     void setInputs(const double *_inputs);
     void propInputs();
+    void setGlobalError(double _globalError);
     void setError(double _leadError);
     void propError();
     void updateWeights();
@@ -34,5 +52,9 @@ private:
     const double *inputs = 0;
     Layer **layers = 0;
     double learningRate = 0;
-    int nNeurons;
+    int nNeurons = 0;
+    int nWeights = 0;
+    double theLeadError = 0;
+    double globalError = 0;
+
 };

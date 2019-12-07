@@ -1,11 +1,19 @@
 #include "clbp/Neuron.h"
 
+#include <assert.h>
 #include <iostream>
 #include <ctgmath>
 #include <cstdlib>
 #include <cstdio>
 #include <cassert>
 #include <fstream>
+#include <iostream>
+#include <math.h>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <numeric>
+#include <vector>
 
 using namespace std;
 
@@ -58,8 +66,14 @@ void Neuron::initNeuron(weightInitMethod _wim, biasInitMethod _bim, Neuron::actM
                  * 0 and RAND_MAX, after the devision the weights are
                  * set to a value between 0 and 1 */
         }
-        initialWeights[i]=weights[i];
-        //saves the initial weights
+        initialWeights[i] = weights[i];
+        weightSum = 0;
+          for (int i=0; i<nInputs; i++){
+              weightSum += fabs(weights[i]);
+              maxWeight = max(maxWeight, weights[i]);
+              minWeight = min (minWeight, weights[i]);
+          }
+
     }
     switch (_bim){
         case B_NONE:
@@ -82,45 +96,6 @@ void Neuron::initNeuron(weightInitMethod _wim, biasInitMethod _bim, Neuron::actM
     }
 }
 
-void Neuron::calcOutput(){
-    double* inputsp= inputs;
-    double* weightsp= weights;
-    /* making copies of the pointers for the scope of this
- * funciton so that the original pinters are unchanged and can
- * be used as a reference in other functiond simultaneously */
-    sum=0;
-    for (int i=0; i<nInputs; i++){
-        double input= *inputsp;
-        double weight= *weightsp;
-        sum += input * weight;
-        inputsp++;
-        weightsp++;
-    }
-    sum += bias;
-    output = doActivation(sum);
-    //assert(std::isfinite(output));
-    //cout << "from Neuron, output is: " << output << endl;
-}
-
-void Neuron::genOutput(){
-        double* inputsp= inputs;
-    double* weightsp= weights;
-    /* making copies of the pointers for the scope of this
- * funciton so that the original pinters are unchanged and can
- * be used as a reference in other functiond simultaneously */
-    sum=0;
-    for (int i=0; i<nInputs; i++){
-        double input= *inputsp;
-        double weight= *weightsp;
-        sum += input * weight;
-        inputsp++;
-        weightsp++;
-    }
-    sum += bias;
-    output = doActivation(sum) - 0.5;
-    assert(std::isfinite(output));
-    //cout << "from Neuron, output is: " << output << endl;
-    }
 
 double Neuron::getOutput(){
     return (output);
@@ -131,25 +106,26 @@ double Neuron::getSumOutput(){
 }
 
 double Neuron::doActivation(double _sum){
+  double thisoutput = 0;
     switch(actMet){
         case 0:
-            output= (1/(1+(exp(-_sum)))) - 0.5;
+            thisoutput = (1/(1+(exp(-_sum)))) - 0.5;
             break;
         case 1:
-            output = tanh(_sum) * 2;
+            thisoutput = tanh(_sum);
             break;
         case 2:
-            output = _sum;
+            thisoutput = _sum;
             break;
     }
-    return (output);
+    return (thisoutput);
 }
 
 double Neuron::doActivationPrime(double _input){
     double result = 0;
     switch(actMet){
         case 0:
-            result = (doActivation(_input) + 0.5) * (1.5 - doActivation(_input)); //exp(-_input) / pow((exp(-_input) + 1),2);
+            result = 0.5 * (0.5 + doActivation(_input)) * (0.5 - doActivation(_input)); //exp(-_input) / pow((exp(-_input) + 1),2);
             break;
         case 1:
             result = 1 - pow (tanh(_input), 2);
@@ -165,44 +141,82 @@ void Neuron::setLearningRate(double _learningRate){
     learningRate=_learningRate;
 }
 
+void Neuron::calcOutput(){
+    sum=0;
+    for (int i=0; i<nInputs; i++){
+        sum += inputs[i] * weights[i];
+    }
+    sum += bias;
+    sum =sum / nInputs;
+    assert(std::isfinite(sum));
+    output = doActivation(sum * 10);
+    assert(std::isfinite(output));
+}
+
+void Neuron::setGlobalError(double _globalError){
+  globalError = _globalError;
+}
+
 void Neuron::setError(double _leadError){
     error = _leadError * doActivationPrime(sum);
+    //cout << error << endl;
     assert(std::isfinite(error));
-
     /*might take a different format to propError*/
 }
 
 void Neuron::propError(double _nextSum){
     error = _nextSum * doActivationPrime(sum);
-    assert(std::isfinite(error));
-    //cout<< "_nextSum was: "<< _nextSum << "and dSigmadt is: " << doActivationPrime(sum) <<endl;
+    assert(std::isfinite(_nextSum));
+
 }
 
 void Neuron::updateWeights(){
+  weightSum = 0;
+  maxWeight = 0;
+  minWeight = 0;
     for (int i=0; i<nInputs; i++){
-        weights[i] += learningRate * (error * inputs[i]); //
-        //weights[i] = Neuron::doActivation(weights[i]); //normalised weights
-        //cout<< "Neuron: internal error is: " << error << endl;
+        weights[i] += learningRate * (error * inputs[i]);
+        weightSum += fabs(weights[i]);
+        maxWeight = max (maxWeight,weights[i]);
+        minWeight = min (maxWeight,weights[i]);
     }
+    // for (int i=0; i<nInputs; i++){
+    //   weights[i] = weights[i] / (maxWeight + minWeight);
+    // }
+}
+
+double Neuron::getMaxWeight(){
+  return maxWeight;
+}
+
+double Neuron::getMinWeight(){
+  return minWeight;
+}
+
+double Neuron::getSumWeight(){
+  return weightSum;
 }
 
 double Neuron::getWeightChange(){
-    double weightsDifference =0;
+    weightsDifference = 0;
+    weightChange = 0;
     for (int i=0; i<nInputs; i++){
         weightsDifference = weights[i] - initialWeights[i];
-        weightChange += weightsDifference * weightsDifference;
+        weightChange += pow(weightsDifference,2);
     }
-    //cout<< "Neuron: WeightChange is: " << weightChange << endl;
     return (weightChange);
 }
 
 double Neuron::getWeightDistance(){
-    double weightDistance=sqrt(weightChange);
-    return (weightDistance);
+    return sqrt(weightChange);
 }
 
 double Neuron::getError(){
     return (error);
+}
+
+double Neuron::getGlobalError(){
+    return (globalError);
 }
 
 int Neuron::getnInputs(){

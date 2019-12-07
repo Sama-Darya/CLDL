@@ -2,11 +2,26 @@
 #include "clbp/Layer.h"
 #include "clbp/Neuron.h"
 
+#include <stdio.h>
+#include <assert.h>
 #include <iostream>
+#include <ctgmath>
+#include <cstdlib>
+#include <cstdio>
+#include <cassert>
+#include <fstream>
+#include <iostream>
+#include <math.h>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <numeric>
+#include <vector>
 
 using namespace std;
 
 Net::Net(int _nLayers, int* _nNeurons, int _nInputs)
+
 {
     nLayers = _nLayers; //no. of layers including inputs and ouputs layers
     layers= new Layer*[nLayers];
@@ -14,11 +29,13 @@ Net::Net(int _nLayers, int* _nNeurons, int _nInputs)
     nInputs=_nInputs; // the no. of inputs to the network (i.e. the first layer)
     int nInput = 0; //temporary variable to use within the scope of for loop
     for (int i=0; i<nLayers; i++){
-        int nNeurons= *nNeuronsp; //no. neurons in this layer
+        int numNeurons= *nNeuronsp; //no. neurons in this layer
         if (i==0){nInput=nInputs;}
         /* no. inputs to the first layer is equal to no. inputs to the network */
-        layers[i]= new Layer(nNeurons, nInput);
-        nInput=nNeurons;
+        layers[i]= new Layer(numNeurons, nInput);
+        nNeurons += numNeurons;
+        nWeights += (numNeurons * nInput);
+        nInput=numNeurons;
         /*no. inputs to the next layer becomes is equal to the number of neurons
          * in the current layer. */
         nNeuronsp++; //point to the no. of neurons in the next layer
@@ -30,7 +47,7 @@ Net::Net(int _nLayers, int* _nNeurons, int _nInputs)
     for (int i=0; i<nLayers; i++){
         nNeurons += layers[i]->getnNeurons();
     }
-    
+
     cout << "number of inputs are: " << nInputs << endl;
 }
 
@@ -89,24 +106,44 @@ Layer* Net::getLayer(int _layerIndex){
 }
 
 void Net::propError(){
-    double tempError=0;
-    double tempWeight=0;
-    for (int i=nLayers-1; i>0 ; i--){
-        for (int k=0; k<layers[i-1]->getnNeurons();k++){
-            double sum=0;
-            for (int j=0; j<layers[i]->getnNeurons(); j++){
-                tempError=layers[i]->getError(j);
-                tempWeight=layers[i]->getWeights(j,k);
-                sum+=tempError * tempWeight;
+    double tempError = 0;
+    double tempWeight = 0;
+    for (int i = nLayers-1; i > 0 ; i--){
+        for (int k = 0; k < layers[i-1]->getnNeurons(); k++){
+            double_t sum = 0.0;
+            double_t normSum = 0.0;
+            double_t weightSumer = 0.0;
+            int weightCounter = 0;
+            for (int j = 0; j < layers[i]->getnNeurons(); j++){
+                tempError = layers[i]->getError(j);
+                tempWeight = layers[i]->getWeights(j,k);
+                sum += (tempError * tempWeight);
+                weightSumer += fabs(tempWeight);
+                weightCounter += 1;
             }
+            normSum = sum / weightCounter;
+            assert(std::isfinite(sum));
+            assert(std::isfinite(weightSumer));
+            assert(std::isfinite(weightCounter));
+            assert(std::isfinite(normSum));
             layers[i-1]->propError(k, sum);
-        }
+          }
     }
+    //cout << "---------------------------------------------------------------------------" << endl;
+}
+
+void Net::setGlobalError(double _globalError){
+  globalError = _globalError;
+  for (int i=nLayers-1; i>=0; i--){
+      layers[i]->setGlobalError(globalError);
+  }
 }
 
 void Net::setError(double _leadError){
     /* this is only for the final layer */
-    layers[nLayers-1]->setError(_leadError);
+    theLeadError = _leadError;
+    //cout<< "lead Error: " << theLeadError << endl;
+    layers[nLayers-1]->setError(theLeadError);
     /* if the leadError was diff. for each output neuron
      * then it would be implemented in a for-loop */
 }
@@ -130,7 +167,7 @@ double Net::getWeightDistance(){
 }
 
 double Net::getLayerWeightDistance(int _layerIndex){
-    return sqrt(layers[_layerIndex]->getWeightChange());
+    return layers[_layerIndex]->getWeightDistance();
 }
 
 double Net::getWeights(int _layerIndex, int _neuronIndex, int _weightIndex){

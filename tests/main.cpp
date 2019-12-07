@@ -10,7 +10,7 @@ int main()
     int nNeurons[nLayers]={2,1};
     int* nNeuronsP=nNeurons;
     constexpr int nInputs=3;
-    double inputs[nInputs]={1,1,1};
+    double inputs[nInputs]={1,0,0};
     double* inputsp=inputs;
     double leadError=-10;
     double learningRate=1;
@@ -22,18 +22,18 @@ int main()
 
     net->setInputs(inputsp);
     net->propInputs();
-    cout<< " INSPECTION 1: " << endl;
+    cout<< " INSPECTION 1: ****************************************************" << endl;
     net->printNetwork();
 
     net->setError(leadError);
     net->propError();
     net->updateWeights();
-    cout<< " INSPECTION 2: " << endl;
+    cout<< " INSPECTION 2: ****************************************************" << endl;
     net->printNetwork();
 
     net->setInputs(inputsp);
     net->propInputs();
-    cout<< " INSPECTION 3: " << endl;
+    cout<< " INSPECTION 3: ****************************************************" << endl;
     net->printNetwork();
 
 //    net->saveWeights();

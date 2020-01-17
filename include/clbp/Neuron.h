@@ -28,7 +28,7 @@ public:
     enum weightInitMethod { W_ZEROS = 0, W_ONES = 1, W_RANDOM = 2 };
     enum actMethod {Act_Sigmoid = 0, Act_Tanh = 1, Act_NONE = 2};
 
-    void initNeuron(weightInitMethod _wim, biasInitMethod _bim, Neuron::actMethod _am);
+    void initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim, biasInitMethod _bim, Neuron::actMethod _am);
     void setLearningRate(double _learningRate);
 
     void setInput(int _index, double _value);
@@ -53,7 +53,7 @@ public:
     double getWeightChange();
     double getWeightDistance();
     int getnInputs();
-    void saveWeights(string _fileName);
+    void saveWeights();
 
     inline void setWeight(int _index, double _weight) {
         assert((_index >= 0) && (_index < nInputs));
@@ -78,4 +78,6 @@ private:
     double weightChange=0;
     double weightsDifference = 0;
     int actMet = 0;
+    int myLayerIndex = 0;
+    int myNeuronIndex = 0;
 };

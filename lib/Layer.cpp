@@ -20,9 +20,11 @@
 
 #include <fstream>
 
-Layer::Layer(int _nNeurons, int _nInputs)
+//*************************************************************************************
+// constructor de-constructor
+//*************************************************************************************
 
-{
+Layer::Layer(int _nNeurons, int _nInputs){
     nNeurons = _nNeurons; // number of neurons in this layer
     nInputs = _nInputs; // number of inputs to each neuron
     neurons = new Neuron*[nNeurons];
@@ -45,6 +47,28 @@ Layer::~Layer(){
     /* it is important to delete any dynamic
      * memory allocation created by "new" */
 }
+
+//*************************************************************************************
+//initialisation:
+//*************************************************************************************
+
+void Layer::initLayer(int _layerIndex, Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim, Neuron::actMethod _am){
+    myLayerIndex = _layerIndex;
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->initNeuron(i, myLayerIndex, _wim, _bim, _am);
+    }
+}
+
+void Layer::setlearningRate(double _learningRate){
+    learningRate=_learningRate;
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->setLearningRate(learningRate);
+    }
+}
+
+//*************************************************************************************
+//forward propagation of inputs:
+//*************************************************************************************
 
 void Layer::setInputs(const double* _inputs){
     /*this is only for the first layer*/
@@ -77,17 +101,43 @@ void Layer::calcOutputs(){
     }
 }
 
-void Layer::setGlobalError(double _globalError){
-  globalError = _globalError;
-  for (int i=0; i<nNeurons; i++){
-      neurons[i]->setGlobalError(globalError);
-  }
+//*************************************************************************************
+//forward propagation of error:
+//*************************************************************************************
+
+void Layer::setErrorAtInput(double _leadForwardError){
+    /*this is only for the first layer*/
+    leadForwardError=_leadForwardError;
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->setErrorAtInput(leadForwardError);
+    }
 }
+
+void Layer::propErrorForward(int _index, double _value){
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->propErrorForward(_index, _value);
+    }
+}
+
+void Layer::calcErrorOutput(){
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->calcErrorOutput();
+    }
+}
+
+double Layer::getForwardError(int _neuronIndex){
+    return (neurons[_neuronIndex]->getForwardError());
+}
+
+//*************************************************************************************
+//back propagation of error:
+//*************************************************************************************
 
 void Layer::setError(double _leadError){
     /* this is only for the final layer */
+    leadBackwardError = _leadError;
     for (int i=0; i<nNeurons; i++){
-        neurons[i]->setError(_leadError);
+        neurons[i]->setError(leadBackwardError);
     }
 }
 
@@ -103,7 +153,37 @@ void Layer::propError(int _neuronIndex, double _nextSum){
 }
 
 double Layer::getError(int _neuronIndex){
-    return (neurons[_neuronIndex]->getError());
+    return (neurons[_neuronIndex]->getBackwardError());
+}
+
+//*************************************************************************************
+//learning:
+//*************************************************************************************
+
+void Layer::updateWeights(){
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->updateWeights();
+    }
+}
+
+//*************************************************************************************
+//global settings
+//*************************************************************************************
+
+void Layer::setGlobalError(double _globalError){
+    globalError = _globalError;
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->setGlobalError(globalError);
+    }
+}
+
+//*************************************************************************************
+//getters:
+//*************************************************************************************
+
+Neuron* Layer::getNeuron(int _neuronIndex){
+    assert(_neuronIndex < nNeurons);
+    return (neurons[_neuronIndex]);
 }
 
 double Layer::getGlobalError(int _neuronIndex){
@@ -139,30 +219,13 @@ double Layer::getOutput(int _neuronIndex){
     return (neurons[_neuronIndex]->getOutput());
 }
 
-
-void Layer::initLayer(int _layerIndex, Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim, Neuron::actMethod _am){
-    myLayerIndex = _layerIndex;
-    for (int i=0; i<nNeurons; i++){
-        neurons[i]->initNeuron(i, myLayerIndex, _wim, _bim, _am);
-    }
-}
-
-void Layer::setlearningRate(double _learningRate){
-    learningRate=_learningRate;
-    for (int i=0; i<nNeurons; i++){
-        neurons[i]->setLearningRate(learningRate);
-    }
-}
-
-void Layer::updateWeights(){
-    for (int i=0; i<nNeurons; i++){
-        neurons[i]->updateWeights();
-    }
-}
-
 int Layer::getnNeurons(){
     return (nNeurons);
 }
+
+//*************************************************************************************
+//saving and inspecting
+//*************************************************************************************
 
 void Layer::saveWeights(){
     for (int i=0; i<nNeurons; i++){
@@ -185,11 +248,6 @@ void Layer::snapWeights(){
         wfile << "\n";
     }
     wfile.close();
-}
-
-Neuron* Layer::getNeuron(int _neuronIndex){
-    assert(_neuronIndex < nNeurons);
-    return (neurons[_neuronIndex]);
 }
 
 void Layer::printLayer(){

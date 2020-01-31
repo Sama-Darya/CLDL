@@ -17,37 +17,29 @@
 
 using namespace std;
 
+//*************************************************************************************
+// constructor de-constructor
+//*************************************************************************************
+
 Neuron::Neuron(int _nInputs)
 {
     nInputs=_nInputs;
     weights = new double[nInputs];
     initialWeights = new double[nInputs];
     inputs = new double[nInputs];
+    inputErrors = new double[nInputs];
 }
 
 Neuron::~Neuron(){
     delete [] weights;
     delete [] initialWeights;
     delete [] inputs;
+    delete [] inputErrors;
 }
 
-void Neuron::setInput(int _index,  double _value) {
-    /* the seInput function sets one input value at the given index,
-     * it has to be implemented in a loop inside the layer class to set
-     * all the inputs associated with all the neurons in that layer*/
-    assert((_index>=0)&&(_index<nInputs));
-    /*checking _index is a valid int, non-negative and within boundary*/
-    inputs[_index] = _value;
-    //cout << "Neuron the input is: " << _value << endl;
-}
-
-void Neuron::propInputs(int _index,  double _value){
-    /*works like setInput function expect it only applies
-     * to the neurons in the hidden and output layers
-     * and not the input layer*/
-    assert((_index>=0)&&(_index<nInputs));
-    inputs[_index] = _value;
-}
+//*************************************************************************************
+//initialisation:
+//*************************************************************************************
 
 void Neuron::initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim, biasInitMethod _bim, Neuron::actMethod _am){
     myLayerIndex = _layerIndex;
@@ -70,11 +62,11 @@ void Neuron::initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim
         }
         initialWeights[i] = weights[i];
         weightSum = 0;
-          for (int i=0; i<nInputs; i++){
-              weightSum += fabs(weights[i]);
-              maxWeight = max(maxWeight, weights[i]);
-              minWeight = min (minWeight, weights[i]);
-          }
+        for (int i=0; i<nInputs; i++){
+            weightSum += fabs(weights[i]);
+            maxWeight = max(maxWeight, weights[i]);
+            minWeight = min (minWeight, weights[i]);
+        }
 
     }
     switch (_bim){
@@ -98,17 +90,120 @@ void Neuron::initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim
     }
 }
 
-
-double Neuron::getOutput(){
-    return (output);
+void Neuron::setLearningRate(double _learningRate){
+    learningRate=_learningRate;
 }
 
-double Neuron::getSumOutput(){
-    return (sum);
+//*************************************************************************************
+//forward propagation of inputs:
+//*************************************************************************************
+
+void Neuron::setInput(int _index,  double _value) {
+    /* the seInput function sets one input value at the given index,
+     * it has to be implemented in a loop inside the layer class to set
+     * all the inputs associated with all the neurons in that layer*/
+    assert((_index>=0)&&(_index<nInputs));
+    /*checking _index is a valid int, non-negative and within boundary*/
+    inputs[_index] = _value;
+    //cout << "Neuron the input is: " << _value << endl;
+}
+
+void Neuron::propInputs(int _index,  double _value){
+    /*works like setInput function expect it only applies
+     * to the neurons in the hidden and output layers
+     * and not the input layer*/
+    assert((_index>=0)&&(_index<nInputs));
+    inputs[_index] = _value;
+}
+
+void Neuron::calcOutput(){
+    sum=0;
+    for (int i=0; i<nInputs; i++){
+        sum += inputs[i] * weights[i];
+    }
+    sum += bias;
+    if (myLayerIndex == 0){
+        sum = sum / 200;
+    }
+    assert(std::isfinite(sum));
+    output = doActivation(sum);
+    assert(std::isfinite(output));
+}
+
+//*************************************************************************************
+//forward propagation of error:
+//*************************************************************************************
+
+void Neuron::setErrorAtInput(double _value) {
+    for(int i=0; i<nInputs; i++){
+        inputErrors[i] = _value;
+    }
+}
+
+void Neuron::propErrorForward(int _index,  double _value){
+    assert((_index>=0)&&(_index<nInputs));
+    inputErrors[_index] = _value;
+}
+
+void Neuron::calcErrorOutput(){
+    double errorSum =0;
+    for (int i=0; i<nInputs; i++) {
+        errorSum += inputErrors[i] * weights[i];
+    }
+    assert(std::isfinite(errorSum));
+    forwardError = errorSum * doActivationPrime(sum); //could do normalisation here
+    assert(std::isfinite(output));
+}
+
+double Neuron::getForwardError(){
+    return (forwardError);
+}
+
+//*************************************************************************************
+//back propagation of error
+//*************************************************************************************
+
+void Neuron::setError(double _leadError){
+    backwardError = _leadError * doActivationPrime(sum);
+    //cout << backwardError << endl;
+    assert(std::isfinite(backwardError));
+    /*might take a different format to propError*/
+}
+
+void Neuron::propError(double _nextSum){
+    backwardError = _nextSum * doActivationPrime(sum);
+    assert(std::isfinite(_nextSum));
+}
+
+double Neuron::getBackwardError(){
+    return (backwardError);
+}
+
+//*************************************************************************************
+//learning
+//*************************************************************************************
+
+void Neuron::updateWeights(){
+    weightSum = 0;
+    maxWeight = 0;
+    minWeight = 0;
+    double force = 1;
+    if (myLayerIndex == 0){
+        force  = 1; //forces a bigger change on the first layer for visualisation in greyscale
+    }
+    for (int i=0; i<nInputs; i++){
+        weights[i] += learningRate * (backwardError * forwardError) * inputs[i];
+        weightSum += fabs(weights[i]);
+        maxWeight = max (maxWeight,weights[i]);
+        minWeight = min (maxWeight,weights[i]);
+    }
+    if (myLayerIndex == 0 && myNeuronIndex == 0){
+        cout << backwardError << " * " << forwardError << endl;
+    }
 }
 
 double Neuron::doActivation(double _sum){
-  double thisoutput = 0;
+    double thisoutput = 0;
     switch(actMet){
         case 0:
             thisoutput = (1/(1+(exp(-_sum)))) - 0.5;
@@ -139,58 +234,24 @@ double Neuron::doActivationPrime(double _input){
     return (result);
 }
 
-void Neuron::setLearningRate(double _learningRate){
-    learningRate=_learningRate;
-}
-
-void Neuron::calcOutput(){
-    sum=0;
-    for (int i=0; i<nInputs; i++){
-        sum += inputs[i] * weights[i];
-    }
-    sum += bias;
-    if (myLayerIndex == 0){
-      sum = sum / 200;
-    }
-    assert(std::isfinite(sum));
-    output = doActivation(sum);
-    assert(std::isfinite(output));
-}
+//*************************************************************************************
+//global settings
+//*************************************************************************************
 
 void Neuron::setGlobalError(double _globalError){
   globalError = _globalError;
 }
 
-void Neuron::setError(double _leadError){
-    error = _leadError * doActivationPrime(sum);
-    //cout << error << endl;
-    assert(std::isfinite(error));
-    /*might take a different format to propError*/
+//*************************************************************************************
+// getters:
+//*************************************************************************************
+
+double Neuron::getOutput(){
+    return (output);
 }
 
-void Neuron::propError(double _nextSum){
-    error = _nextSum * doActivationPrime(sum);
-    assert(std::isfinite(_nextSum));
-
-}
-
-void Neuron::updateWeights(){
-  weightSum = 0;
-  maxWeight = 0;
-  minWeight = 0;
-  double force = 1;
-  if (myLayerIndex == 0){
-    force  = 1;
-  }
-    for (int i=0; i<nInputs; i++){
-        weights[i] += learningRate * (error * inputs[i]) * force;
-        weightSum += fabs(weights[i]);
-        maxWeight = max (maxWeight,weights[i]);
-        minWeight = min (maxWeight,weights[i]);
-    }
-    // for (int i=0; i<nInputs; i++){
-    //   weights[i] = weights[i] / (maxWeight + minWeight);
-    // }
+double Neuron::getSumOutput(){
+    return (sum);
 }
 
 double Neuron::getMaxWeight(){
@@ -219,10 +280,6 @@ double Neuron::getWeightDistance(){
     return sqrt(weightChange);
 }
 
-double Neuron::getError(){
-    return (error);
-}
-
 double Neuron::getGlobalError(){
     return (globalError);
 }
@@ -240,6 +297,10 @@ double Neuron::getInitWeights(int _inputIndex){
     assert((_inputIndex>=0)&&(_inputIndex<nInputs));
     return (initialWeights[_inputIndex]);
 }
+
+//*************************************************************************************
+//saving and inspecting
+//*************************************************************************************
 
 void Neuron::saveWeights(){
   char l = '0';

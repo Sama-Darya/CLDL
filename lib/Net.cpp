@@ -20,6 +20,10 @@
 
 using namespace std;
 
+//*************************************************************************************
+//initialisation:
+//*************************************************************************************
+
 Net::Net(int _nLayers, int* _nNeurons, int _nInputs)
 
 {
@@ -59,15 +63,26 @@ Net::~Net(){
     //delete[] inputs;
 }
 
-void Net::setInputs(const double* _inputs){
-    inputs=_inputs;
-    layers[0]->setInputs(inputs); //sets the inputs to the first layer only
-}
-
 void Net::initNetwork(Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim, Neuron::actMethod _am){
     for (int i=0; i<nLayers; i++){
         layers[i]->initLayer(i, _wim, _bim, _am);
     }
+}
+
+void Net::setLearningRate(double _learningRate){
+    learningRate=_learningRate;
+    for (int i=0; i<nLayers; i++){
+        layers[i]->setlearningRate(learningRate);
+    }
+}
+
+//*************************************************************************************
+//forward propagation of inputs:
+//*************************************************************************************
+
+void Net::setInputs(const double* _inputs){
+    inputs=_inputs;
+    layers[0]->setInputs(inputs); //sets the inputs to the first layer only
 }
 
 void Net::propInputs(){
@@ -84,25 +99,40 @@ void Net::propInputs(){
      * but this is not fed into any further layer*/
 }
 
-double Net::getOutput(int _neuronIndex){
-    return (layers[nLayers-1]->getOutput(_neuronIndex));
+//*************************************************************************************
+//forward propagation of error:
+//*************************************************************************************
+
+void Net::setErrorAtInput(double _leadForwardError){
+    leadForwardError=_leadForwardError;
+    layers[0]->setErrorAtInput(leadForwardError);
 }
 
-double Net::getSumOutput(int _neuronIndex){
-    return (layers[nLayers-1]->getSumOutput(_neuronIndex));
+void Net::propErrorForward(){
+    for (int i=0; i<nLayers-1; i++){
+        layers[i]->calcErrorOutput();
+        for (int j=0; j<layers[i]->getnNeurons(); j++){
+            double inputOuput = layers[i]->getForwardError(j);
+            layers[i+1]->propErrorForward(j, inputOuput);
+        }
+    }
+    layers[nLayers-1]->calcErrorOutput();
 }
 
-int Net::getnLayers(){
-    return (nLayers);
-}
+//*************************************************************************************
+//back propagation of error
+//*************************************************************************************
 
-int Net::getnInputs(){
-    return (nInputs);
-}
-
-Layer* Net::getLayer(int _layerIndex){
-    assert(_layerIndex<nLayers);
-    return (layers[_layerIndex]);
+void Net::setError(double _leadError){
+    /* this is only for the final layer */
+    theLeadError = _leadError;
+    //cout<< "lead Error: " << theLeadError << endl;
+    layers[nLayers-1]->setError(theLeadError);
+    /* if the leadError was diff. for each output neuron
+     * then it would be implemented in a for-loop */
+    for (int i=nLayers-1; i>=0; i--){
+        layers[i]->setGlobalError(globalError);
+    }
 }
 
 void Net::propError(){
@@ -129,29 +159,50 @@ void Net::propError(){
             layers[i-1]->propError(k, normSum);
           }
     }
-    //cout << "---------------------------------------------------------------------------" << endl;
+    //cout << "--------------------------------------------------" << endl;
 }
 
-void Net::setGlobalError(double _globalError){
-  globalError = _globalError;
-}
-
-void Net::setError(double _leadError){
-    /* this is only for the final layer */
-    theLeadError = _leadError;
-    //cout<< "lead Error: " << theLeadError << endl;
-    layers[nLayers-1]->setError(theLeadError);
-    /* if the leadError was diff. for each output neuron
-     * then it would be implemented in a for-loop */
-    for (int i=nLayers-1; i>=0; i--){
-     layers[i]->setGlobalError(globalError);
-    }
-}
+//*************************************************************************************
+//learning:
+//*************************************************************************************
 
 void Net::updateWeights(){
     for (int i=nLayers-1; i>=0; i--){
         layers[i]->updateWeights();
     }
+}
+
+//*************************************************************************************
+//global settings:
+//*************************************************************************************
+
+void Net::setGlobalError(double _globalError){
+  globalError = _globalError;
+}
+
+//*************************************************************************************
+// getters:
+//*************************************************************************************
+
+double Net::getOutput(int _neuronIndex){
+    return (layers[nLayers-1]->getOutput(_neuronIndex));
+}
+
+double Net::getSumOutput(int _neuronIndex){
+    return (layers[nLayers-1]->getSumOutput(_neuronIndex));
+}
+
+int Net::getnLayers(){
+    return (nLayers);
+}
+
+int Net::getnInputs(){
+    return (nInputs);
+}
+
+Layer* Net::getLayer(int _layerIndex){
+    assert(_layerIndex<nLayers);
+    return (layers[_layerIndex]);
 }
 
 double Net::getWeightDistance(){
@@ -162,7 +213,6 @@ double Net::getWeightDistance(){
     }
     weightDistance=sqrt(weightChange);
     // cout<< "Net: WeightDistance is: " << weightDistance << endl;
-
     return (weightDistance);
 }
 
@@ -175,16 +225,13 @@ double Net::getWeights(int _layerIndex, int _neuronIndex, int _weightIndex){
     return (weight);
 }
 
-void Net::setLearningRate(double _learningRate){
-    learningRate=_learningRate;
-    for (int i=0; i<nLayers; i++){
-        layers[i]->setlearningRate(learningRate);
-    }
-}
-
 int Net::getnNeurons(){
     return (nNeurons);
 }
+
+//*************************************************************************************
+//saving and inspecting
+//*************************************************************************************
 
 void Net::saveWeights(){
     for (int i=0; i<nLayers; i++){

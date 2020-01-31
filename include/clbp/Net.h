@@ -20,20 +20,32 @@
 
 class Net {
 public:
+    // initialisation:
     Net(int _nLayers, int *_nNeurons, int _nInputs);
-
     ~Net();
-    Layer *getLayer(int _layerIndex);
     void initNetwork(Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim, Neuron::actMethod _am);
-
     void setLearningRate(double _learningRate);
+
+    //forward propagation of inputs:
     void setInputs(const double *_inputs);
     void propInputs();
-    void setGlobalError(double _globalError);
+
+    //->->forward->-> propagation of error:
+    void setErrorAtInput(double _leadForwardError); //only for the first layer
+    void propErrorForward();
+
+    //back propagation of error
     void setError(double _leadError);
     void propError();
+
+    //learning:
     void updateWeights();
 
+    //global settings
+    void setGlobalError(double _globalError);
+
+    // getters:
+    Layer *getLayer(int _layerIndex);
     double getOutput(int _neuronIndex);
     double getSumOutput(int _neuronIndex);
     int getnLayers();
@@ -42,20 +54,31 @@ public:
     double getLayerWeightDistance(int _layerIndex);
     double getWeights(int _layerIndex, int _neuronIndex, int _weightIndex);
     int getnNeurons();
+
+    //saving and inspecting
     void saveWeights();
     void snapWeights();
     void printNetwork();
 
 private:
+    // initialisation:
     int nLayers = 0;
-    int nInputs = 0;
-    int nOutputs = 0;
-    const double *inputs = 0;
-    Layer **layers = 0;
-    double learningRate = 0;
     int nNeurons = 0;
     int nWeights = 0;
-    double theLeadError = 0;
-    double globalError = 0;
+    int nInputs = 0;
+    int nOutputs = 0;
+    double learningRate = 0;
+    Layer **layers = 0;
 
+    //forward propagation of inputs:
+    const double *inputs = 0;
+
+    //forward propagation of error:
+    double leadForwardError = 0;
+
+    //back propagation of error
+    double theLeadError = 0;
+
+    //global settings
+    double globalError = 0;
 };

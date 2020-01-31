@@ -10,15 +10,25 @@ int main()
     int nNeurons[nLayers]={2,1};
     int* nNeuronsP=nNeurons;
     constexpr int nInputs=3;
-    double inputs[nInputs]={1,0,0};
+    double inputs[nInputs]={1,1,1};
     double* inputsp=inputs;
-    double leadError=-10;
+    double leadError=1;
     double learningRate=1;
 
     net= new Net(nLayers, nNeuronsP, nInputs);
     net->initNetwork(Neuron::W_ONES, Neuron::B_NONE, Neuron::Act_Sigmoid);
     net->setLearningRate(learningRate);
 
+
+    for (int i=0; i<10; i++){
+        net->setInputs(inputsp);
+        net->propInputs();
+        net->setError(leadError);
+        net->propError();
+        net->setErrorAtInput(leadError);
+        net->propErrorForward();
+        net->updateWeights();
+    }
 
     net->setInputs(inputsp);
     net->propInputs();

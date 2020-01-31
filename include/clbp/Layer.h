@@ -21,45 +21,72 @@
 
 class Layer {
 public:
+    // constructor de-constructor
     Layer(int _nNeurons, int _nInputs);
-
     ~Layer();
 
-    void setInputs(const double *_inputs); // only for the first layer
+    // initialisation:
     void initLayer(int _layerIndex, Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim, Neuron::actMethod _am);
+    void setlearningRate(double _learningRate);
+
+    //forward propagation of inputs:
+    void setInputs(const double *_inputs); // only for the first layer
+    void propInputs(int _index, double _value);
     void calcOutputs();
+
+    // ->->forward->-> propagation of error:
+    void setErrorAtInput(double _leadForwardError); //only for the first layer
+    void propErrorForward(int _index, double _value);
+    void calcErrorOutput();
+    double getForwardError(int _neuronIndex);
+
+    //back propagation of error:
+    void setError(double _leadError);
+    void propError(int _neuronIndex, double _nextSum);
+    double getError(int _neuronIndex);
+
+    //learning:
+    void updateWeights();
+
+    //global settings
+    void setGlobalError(double _globalError);
+
+    //getters:
+    Neuron *getNeuron(int _neuronIndex);
+    int getnNeurons();
     double getOutput(int _neuronIndex);
     double getSumOutput(int _neuronIndex);
-    void propInputs(int _index, double _value);
-    /*this is for hidden and output layers (not input)*/
-    void printLayer();
-    void propError(int _neuronIndex, double _nextSum);
-    int getnNeurons();
-    void setlearningRate(double _learningRate);
-    double getError(int _neuronIndex);
-    double getGlobalError(int _neuronIndex);
     double getWeights(int _neuronIndex, int _weightIndex);
-    double getInitWeight(int _neuronIndex, int _weightIndex);
     double getWeightChange();
     double getWeightDistance();
-    void setGlobalError(double _globalError);
-    void setError(double _leadError);
-    void updateWeights();
-    void saveWeights();
-    void snapWeights(); // This one just saves the final weights
-    // i.e. overwrites them
+    double getGlobalError(int _neuronIndex);
+    double getInitWeight(int _neuronIndex, int _weightIndex);
 
-    Neuron *getNeuron(int _neuronIndex);
+    //saving and inspecting
+    void saveWeights();
+    void snapWeights(); // This one just saves the final weight i.e. overwrites them
+    void printLayer();
 
 private:
+    // initialisation:
     int nNeurons = 0;
     int nInputs = 0;
-    const double *inputs = 0;
-    Neuron **neurons = 0;
     double learningRate = 0;
-    double weightChange=0;
-    double globalError = 0;
-    int printInfo = 1;
     int myLayerIndex = 0;
+    Neuron **neurons = 0;
 
+    //forward propagation of inputs:
+    const double *inputs = 0;
+
+    //forward propagation of error:
+    double leadForwardError = 0;
+
+    //back propagation of error:
+    double leadBackwardError = 0;
+
+    //global settings
+    double globalError = 0;
+
+    //learning:
+    double weightChange=0;
 };

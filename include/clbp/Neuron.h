@@ -22,8 +22,11 @@ using namespace std;
 
 class Neuron {
 public:
+    // constructor de-constructor
     Neuron(int _nInputs);
     ~Neuron();
+
+    // initialisation:
     enum biasInitMethod { B_NONE = 0, B_RANDOM = 1 };
     enum weightInitMethod { W_ZEROS = 0, W_ONES = 1, W_RANDOM = 2 };
     enum actMethod {Act_Sigmoid = 0, Act_Tanh = 1, Act_NONE = 2};
@@ -31,53 +34,86 @@ public:
     void initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim, biasInitMethod _bim, Neuron::actMethod _am);
     void setLearningRate(double _learningRate);
 
+    //forward propagation of inputs:
     void setInput(int _index, double _value);
     void propInputs(int _index, double _value);
     void calcOutput();
+
+    //->->forward->-> propagation of error:
+    void setErrorAtInput(double _value);
+    void propErrorForward(int _index, double _value);
+    void calcErrorOutput();
+
+    //back propagation of error
+    void setError(double _nextSum);  // for the output layer only
+    void propError(double _nextSum); // used for all layers except the output
+    double getBackwardError();
+
+    //learning:
     void updateWeights();
     double doActivation(double _sum);
     double doActivationPrime(double _input);
-    void setGlobalError(double _globalError);
-    void setError(double _nextSum);  // for the output layer only
-    void propError(double _nextSum); // used for all layers except the output
 
+    //global settings
+    void setGlobalError(double _globalError);
+
+    //getters:
     double getOutput();
+    double getForwardError();
     double getSumOutput();
     double getWeights(int _inputIndex);
     double getInitWeights(int _inputIndex);
-    double getError();
+    double getGlobalError();
+    double getWeightChange();
     double getMaxWeight();
     double getMinWeight();
     double getSumWeight();
-    double getGlobalError();
-    double getWeightChange();
+
     double getWeightDistance();
     int getnInputs();
+
+    //saving and inspecting
     void saveWeights();
+    void printNeuron();
 
     inline void setWeight(int _index, double _weight) {
         assert((_index >= 0) && (_index < nInputs));
         weights[_index] = _weight;
     }
-    void printNeuron();
 
 private:
+
+    // initialisation:
     int nInputs = 0;
-    double *inputs = 0;
-    double *weights = 0;
+    int myLayerIndex = 0;
+    int myNeuronIndex = 0;
     double *initialWeights = 0;
-    double bias = 0;
-    double error = 0;
-    double globalError = 0;
-    double output = 0;
     double learningRate = 0;
+
+    //forward propagation of inputs:
+    double *inputs = 0;
+    double bias = 0;
     double sum = 0;
+    double output = 0;
+
+    //forward propagation of error:
+    double *inputErrors = 0;
+    double forwardError = 0;
+
+    //back propagation of error
+    double backwardError = 0;
+
+    //learning:
+    double *weights = 0;
     double weightSum = 0;
     double maxWeight = 1;
     double minWeight = 1;
     double weightChange=0;
     double weightsDifference = 0;
     int actMet = 0;
-    int myLayerIndex = 0;
-    int myNeuronIndex = 0;
+
+    //global setting
+    double globalError = 0;
+
+
 };

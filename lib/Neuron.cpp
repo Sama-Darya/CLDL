@@ -221,10 +221,11 @@ void Neuron::propMidErrorBackward(double _nextSum){
 //learning
 //*************************************************************************************
 
-void Neuron::setErrorCoeff(int _backwardsCoeff, int _midCoeff, int _forwardCoeff){
+void Neuron::setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff){
     backwardsCoeff = _backwardsCoeff;
     midCoeff = _midCoeff;
     forwardCoeff =_forwardCoeff;
+    globalCoeff = _globalCoeff;
 }
 
 void Neuron::updateWeights(){
@@ -236,13 +237,14 @@ void Neuron::updateWeights(){
         force  = 1; //forces a bigger change on the first layer for visualisation in greyscale
     }
     for (int i=0; i<nInputs; i++){
-        weights[i] += learningRate * (backwardsCoeff * backwardError + midCoeff * forwardError + forwardCoeff * midError) * inputs[i];
+        weights[i] += learningRate * (globalCoeff * globalError + backwardsCoeff * backwardError + midCoeff * forwardError + forwardCoeff * midError) * inputs[i];
         weightSum += fabs(weights[i]);
         maxWeight = max (maxWeight,weights[i]);
         minWeight = min (maxWeight,weights[i]);
     }
     if (myLayerIndex == 0 && myNeuronIndex == 0){
-        cout << " Backward: " << backwardsCoeff << " x " << backwardError
+        cout << " Global: " << globalCoeff << " x " << globalError
+                << " Backward: " << backwardsCoeff << " x " << backwardError
                 << " BiDirectional " << midCoeff << " x " << midError
                 << " Forward: " << forwardCoeff << " x " << forwardError << endl;
     }

@@ -191,12 +191,13 @@ void Layer::propMidErrorBackward(int _neuronIndex, double _nextSum){
 //learning:
 //*************************************************************************************
 
-void Layer::setErrorCoeff(int _backwardsCoeff, int _midCoeff, int _forwardCoeff){
+void Layer::setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff){
     backwardsCoeff = _backwardsCoeff;
     midCoeff = _midCoeff;
     forwardCoeff =_forwardCoeff;
+    globalCoeff = _globalCoeff;
     for (int i=0; i<nNeurons; i++){
-        neurons[i]->setErrorCoeff(backwardsCoeff, midCoeff, forwardCoeff);
+        neurons[i]->setErrorCoeff(globalCoeff, backwardsCoeff, midCoeff, forwardCoeff);
     }
 }
 

@@ -53,7 +53,7 @@ public:
     void propMidErrorBackward(int _neuronIndex, double _nextSum);
 
     //learning:
-    void setErrorCoeff(int _backwardsCoeff, int _midCoeff, int forwardCoeff);
+    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff);
     void updateWeights();
 
     //global settings
@@ -99,8 +99,9 @@ private:
     double globalError = 0;
 
     //learning:
-    int backwardsCoeff = 0;
-    int midCoeff = 0;
-    int forwardCoeff = 0;
+    double backwardsCoeff = 0;
+    double midCoeff = 0;
+    double forwardCoeff = 0;
+    double globalCoeff = 0;
     double weightChange=0;
 };

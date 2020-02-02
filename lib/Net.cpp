@@ -212,12 +212,13 @@ void Net::propMidErrorBackward(){
 //learning:
 //*************************************************************************************
 
-void Net::setErrorCoeff(int _backwardsCoeff, int _midCoeff, int _forwardCoeff){
+void Net::setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff){
     backwardsCoeff = _backwardsCoeff;
     midCoeff = _midCoeff;
     forwardCoeff =_forwardCoeff;
+    globalCoeff = _globalCoeff;
     for (int i=0; i<nLayers; i++){
-        layers[i]->setErrorCoeff(backwardsCoeff, midCoeff, forwardCoeff);
+        layers[i]->setErrorCoeff(globalCoeff, backwardsCoeff, midCoeff, forwardCoeff);
     }
 }
 

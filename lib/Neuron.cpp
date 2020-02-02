@@ -28,6 +28,8 @@ Neuron::Neuron(int _nInputs)
     initialWeights = new double[nInputs];
     inputs = new double[nInputs];
     inputErrors = new double[nInputs];
+    inputMidErrors = new double[nInputs];
+
 }
 
 Neuron::~Neuron(){
@@ -35,6 +37,8 @@ Neuron::~Neuron(){
     delete [] initialWeights;
     delete [] inputs;
     delete [] inputErrors;
+    delete [] inputMidErrors;
+
 }
 
 //*************************************************************************************
@@ -145,14 +149,14 @@ void Neuron::propErrorForward(int _index,  double _value){
     inputErrors[_index] = _value;
 }
 
-void Neuron::calcErrorOutput(){
+void Neuron::calcForwardError(){
     double errorSum =0;
     for (int i=0; i<nInputs; i++) {
         errorSum += inputErrors[i] * weights[i];
     }
     assert(std::isfinite(errorSum));
     forwardError = errorSum * doActivationPrime(sum); //could do normalisation here
-    assert(std::isfinite(output));
+    assert(std::isfinite(forwardError));
 }
 
 double Neuron::getForwardError(){
@@ -163,14 +167,14 @@ double Neuron::getForwardError(){
 //back propagation of error
 //*************************************************************************************
 
-void Neuron::setError(double _leadError){
+void Neuron::setBackwardError(double _leadError){
     backwardError = _leadError * doActivationPrime(sum);
     //cout << backwardError << endl;
     assert(std::isfinite(backwardError));
     /*might take a different format to propError*/
 }
 
-void Neuron::propError(double _nextSum){
+void Neuron::propErrorBackward(double _nextSum){
     backwardError = _nextSum * doActivationPrime(sum);
     assert(std::isfinite(_nextSum));
 }
@@ -180,8 +184,48 @@ double Neuron::getBackwardError(){
 }
 
 //*************************************************************************************
+//MID propagation of error
+//*************************************************************************************
+
+void Neuron::setMidError(double _leadMidError){
+    for(int i=0; i<nInputs; i++){
+        inputMidErrors[i] = _leadMidError;
+    }
+}
+
+void Neuron::calcMidError(){
+    double errorSum =0;
+    for (int i=0; i<nInputs; i++) {
+        errorSum += inputMidErrors[i] * weights[i];
+    }
+    assert(std::isfinite(errorSum));
+    midError = errorSum * doActivationPrime(sum); //could do normalisation here
+    assert(std::isfinite(midError));
+}
+
+double Neuron::getMidError(){
+    return (midError);
+}
+
+void Neuron::propMidErrorForward(int _index,  double _value){
+    assert((_index>=0)&&(_index<nInputs));
+    inputMidErrors[_index] = _value;
+}
+
+void Neuron::propMidErrorBackward(double _nextSum){
+    midError = _nextSum * doActivationPrime(sum);
+    assert(std::isfinite(_nextSum));
+}
+
+//*************************************************************************************
 //learning
 //*************************************************************************************
+
+void Neuron::setErrorCoeff(int _backwardsCoeff, int _midCoeff, int _forwardCoeff){
+    backwardsCoeff = _backwardsCoeff;
+    midCoeff = _midCoeff;
+    forwardCoeff =_forwardCoeff;
+}
 
 void Neuron::updateWeights(){
     weightSum = 0;
@@ -192,13 +236,15 @@ void Neuron::updateWeights(){
         force  = 1; //forces a bigger change on the first layer for visualisation in greyscale
     }
     for (int i=0; i<nInputs; i++){
-        weights[i] += learningRate * (backwardError * forwardError) * inputs[i];
+        weights[i] += learningRate * (backwardsCoeff * backwardError + midCoeff * forwardError + forwardCoeff * midError) * inputs[i];
         weightSum += fabs(weights[i]);
         maxWeight = max (maxWeight,weights[i]);
         minWeight = min (maxWeight,weights[i]);
     }
     if (myLayerIndex == 0 && myNeuronIndex == 0){
-        cout << backwardError << " * " << forwardError << endl;
+        cout << " Backward: " << backwardsCoeff << " x " << backwardError
+                << " BiDirectional " << midCoeff << " x " << midError
+                << " Forward: " << forwardCoeff << " x " << forwardError << endl;
     }
 }
 

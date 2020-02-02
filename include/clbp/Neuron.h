@@ -42,14 +42,23 @@ public:
     //->->forward->-> propagation of error:
     void setErrorAtInput(double _value);
     void propErrorForward(int _index, double _value);
-    void calcErrorOutput();
+    void calcForwardError();
 
     //back propagation of error
-    void setError(double _nextSum);  // for the output layer only
-    void propError(double _nextSum); // used for all layers except the output
+    void setBackwardError(double _nextSum);  // for the output layer only
+    void propErrorBackward(double _nextSum); // used for all layers except the output
     double getBackwardError();
 
+    //MID propagation of error:
+    void setMidError(double _leadMidError);
+    void calcMidError();
+    double getMidError();
+    void propMidErrorForward(int _index, double _value);
+    void propMidErrorBackward(double _nextSum); // used for all layers except the output
+
+
     //learning:
+    void setErrorCoeff(int _backwardsCoeff, int _midCoeff, int forwardCoeff);
     void updateWeights();
     double doActivation(double _sum);
     double doActivationPrime(double _input);
@@ -103,7 +112,14 @@ private:
     //back propagation of error
     double backwardError = 0;
 
+    //mid propagation of error
+    double *inputMidErrors = 0;
+    double midError = 0;
+
     //learning:
+    int backwardsCoeff = 0;
+    int midCoeff = 0;
+    int forwardCoeff = 0;
     double *weights = 0;
     double weightSum = 0;
     double maxWeight = 1;

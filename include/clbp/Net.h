@@ -35,10 +35,16 @@ public:
     void propErrorForward();
 
     //back propagation of error
-    void setError(double _leadError);
-    void propError();
+    void setBackwardError(double _leadError);
+    void propErrorBackward();
+
+    //MID propagation of error
+    void setMidError(int _layerIndex, double _leadMidError);
+    void propMidErrorForward();
+    void propMidErrorBackward();
 
     //learning:
+    void setErrorCoeff(int _backwardsCoeff, int _midCoeff, int forwardCoeff);
     void updateWeights();
 
     //global settings
@@ -78,6 +84,15 @@ private:
 
     //back propagation of error
     double theLeadError = 0;
+
+    //mid propagation of error
+    int midLayerIndex = 0;
+    double theLeadMidError = 0;
+
+    //learning
+    int backwardsCoeff = 0;
+    int midCoeff = 0;
+    int forwardCoeff = 0;
 
     //global settings
     double globalError = 0;

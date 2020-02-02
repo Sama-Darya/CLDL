@@ -18,15 +18,19 @@ int main()
     net= new Net(nLayers, nNeuronsP, nInputs);
     net->initNetwork(Neuron::W_ONES, Neuron::B_NONE, Neuron::Act_Sigmoid);
     net->setLearningRate(learningRate);
+    net->setErrorCoeff(1,2,3);
 
 
     for (int i=0; i<10; i++){
         net->setInputs(inputsp);
         net->propInputs();
-        net->setError(leadError);
-        net->propError();
+        net->setBackwardError(leadError);
+        net->propErrorBackward();
         net->setErrorAtInput(leadError);
         net->propErrorForward();
+        net->setMidError(1,leadError);
+        net->propMidErrorForward();
+        net->propMidErrorBackward();
         net->updateWeights();
     }
 
@@ -35,8 +39,8 @@ int main()
     cout<< " INSPECTION 1: ****************************************************" << endl;
     net->printNetwork();
 
-    net->setError(leadError);
-    net->propError();
+    net->setBackwardError(leadError);
+    net->propErrorBackward();
     net->updateWeights();
     cout<< " INSPECTION 2: ****************************************************" << endl;
     net->printNetwork();

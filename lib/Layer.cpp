@@ -119,9 +119,9 @@ void Layer::propErrorForward(int _index, double _value){
     }
 }
 
-void Layer::calcErrorOutput(){
+void Layer::calcForwardError(){
     for (int i=0; i<nNeurons; i++){
-        neurons[i]->calcErrorOutput();
+        neurons[i]->calcForwardError();
     }
 }
 
@@ -133,16 +133,16 @@ double Layer::getForwardError(int _neuronIndex){
 //back propagation of error:
 //*************************************************************************************
 
-void Layer::setError(double _leadError){
+void Layer::setBackwardError(double _leadBackwardError){
     /* this is only for the final layer */
-    leadBackwardError = _leadError;
+    leadBackwardError = _leadBackwardError;
     for (int i=0; i<nNeurons; i++){
-        neurons[i]->setError(leadBackwardError);
+        neurons[i]->setBackwardError(leadBackwardError);
     }
 }
 
-void Layer::propError(int _neuronIndex, double _nextSum){
-    neurons[_neuronIndex]->propError(_nextSum);
+void Layer::propErrorBackward(int _neuronIndex, double _nextSum){
+    neurons[_neuronIndex]->propErrorBackward(_nextSum);
     // if (_neuronIndex == 0){
     //   cout << " BP>> acc2=Sum(W*E): " << _nextSum;
     //   cout << " e=acc*sigmoid'(acc1): " << neurons[_neuronIndex]->getError();
@@ -152,13 +152,53 @@ void Layer::propError(int _neuronIndex, double _nextSum){
     // }
 }
 
-double Layer::getError(int _neuronIndex){
+double Layer::getBackwardError(int _neuronIndex){
     return (neurons[_neuronIndex]->getBackwardError());
 }
 
 //*************************************************************************************
+//mid propagation of error:
+//*************************************************************************************
+
+void Layer::setMidError(double _leadMidError){
+    /* this is only for the final layer */
+    leadMidError = _leadMidError;
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->setMidError(leadMidError);
+    }
+}
+
+void Layer::calcMidError(){
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->calcMidError();
+    }
+}
+
+double Layer::getMidError(int _neuronIndex){
+    return (neurons[_neuronIndex]->getMidError());
+}
+
+void Layer::propMidErrorForward(int _index, double _value){
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->propMidErrorForward(_index, _value);
+    }
+}
+
+void Layer::propMidErrorBackward(int _neuronIndex, double _nextSum){
+    neurons[_neuronIndex]->propMidErrorBackward(_nextSum);
+}
+//*************************************************************************************
 //learning:
 //*************************************************************************************
+
+void Layer::setErrorCoeff(int _backwardsCoeff, int _midCoeff, int _forwardCoeff){
+    backwardsCoeff = _backwardsCoeff;
+    midCoeff = _midCoeff;
+    forwardCoeff =_forwardCoeff;
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->setErrorCoeff(backwardsCoeff, midCoeff, forwardCoeff);
+    }
+}
 
 void Layer::updateWeights(){
     for (int i=0; i<nNeurons; i++){

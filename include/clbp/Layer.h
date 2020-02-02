@@ -37,15 +37,23 @@ public:
     // ->->forward->-> propagation of error:
     void setErrorAtInput(double _leadForwardError); //only for the first layer
     void propErrorForward(int _index, double _value);
-    void calcErrorOutput();
+    void calcForwardError();
     double getForwardError(int _neuronIndex);
 
     //back propagation of error:
-    void setError(double _leadError);
-    void propError(int _neuronIndex, double _nextSum);
-    double getError(int _neuronIndex);
+    void setBackwardError(double _leadError);
+    void propErrorBackward(int _neuronIndex, double _nextSum);
+    double getBackwardError(int _neuronIndex);
+
+    //Mid propagation of error:
+    void setMidError(double _leadMidError);
+    void calcMidError();
+    double getMidError(int _neuronIndex);
+    void propMidErrorForward(int _index, double _value);
+    void propMidErrorBackward(int _neuronIndex, double _nextSum);
 
     //learning:
+    void setErrorCoeff(int _backwardsCoeff, int _midCoeff, int forwardCoeff);
     void updateWeights();
 
     //global settings
@@ -84,9 +92,15 @@ private:
     //back propagation of error:
     double leadBackwardError = 0;
 
+    //mid propagation of error:
+    double leadMidError = 0;
+
     //global settings
     double globalError = 0;
 
     //learning:
+    int backwardsCoeff = 0;
+    int midCoeff = 0;
+    int forwardCoeff = 0;
     double weightChange=0;
 };

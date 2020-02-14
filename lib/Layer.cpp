@@ -105,11 +105,11 @@ void Layer::calcOutputs(){
 //forward propagation of error:
 //*************************************************************************************
 
-void Layer::setErrorAtInput(double _leadForwardError){
+void Layer::setForwardError(double _leadForwardError){
     /*this is only for the first layer*/
     leadForwardError=_leadForwardError;
     for (int i=0; i<nNeurons; i++){
-        neurons[i]->setErrorAtInput(leadForwardError);
+        neurons[i]->setForwardError(leadForwardError);
     }
 }
 
@@ -187,17 +187,49 @@ void Layer::propMidErrorForward(int _index, double _value){
 void Layer::propMidErrorBackward(int _neuronIndex, double _nextSum){
     neurons[_neuronIndex]->propMidErrorBackward(_nextSum);
 }
+
+//*************************************************************************************
+//exploding/vanishing gradient:
+//*************************************************************************************
+
+double Layer::getGradient(Neuron::whichError _whichError, whichGradient _whichGradient) {
+    averageError = 0;
+    maxError = -100;
+    minError = 100;
+    switch(_whichGradient){
+        case exploding:
+            for (int i=0; i<nNeurons; i++){
+                maxError = max(maxError, neurons[i]->getError(_whichError));
+            }
+            return maxError;
+            break;
+        case average:
+            for (int i=0; i<nNeurons; i++){
+                averageError += neurons[i]->getError(_whichError);
+            }
+            return averageError/nNeurons;
+            break;
+        case vanishing:
+            for (int i=0; i<nNeurons; i++){
+                minError = min(minError, neurons[i]->getError(_whichError));
+            }
+            return minError;
+            break;
+    }
+}
+
 //*************************************************************************************
 //learning:
 //*************************************************************************************
 
-void Layer::setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff){
+void Layer::setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff, double _localCoeff){
     backwardsCoeff = _backwardsCoeff;
     midCoeff = _midCoeff;
     forwardCoeff =_forwardCoeff;
     globalCoeff = _globalCoeff;
+    localCoeff = _localCoeff;
     for (int i=0; i<nNeurons; i++){
-        neurons[i]->setErrorCoeff(globalCoeff, backwardsCoeff, midCoeff, forwardCoeff);
+        neurons[i]->setErrorCoeff(globalCoeff, backwardsCoeff, midCoeff, forwardCoeff, localCoeff);
     }
 }
 
@@ -216,6 +248,26 @@ void Layer::setGlobalError(double _globalError){
     for (int i=0; i<nNeurons; i++){
         neurons[i]->setGlobalError(globalError);
     }
+}
+
+//*************************************************************************************
+//local backpropagation of error
+//*************************************************************************************
+
+void Layer::setLocalError(double _leadLocalError){
+    /* this is only for the final layer */
+    leadLocalError = _leadLocalError;
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->setLocalError(leadLocalError);
+    }
+}
+
+void Layer::propGlobalErrorBackwardLocally(int _neuronIndex, double _nextSum){
+    neurons[_neuronIndex]->propGlobalErrorBackwardLocally(_nextSum);
+}
+
+double Layer::getLocalError(int _neuronIndex){
+    return (neurons[_neuronIndex]->getLocalError());
 }
 
 //*************************************************************************************

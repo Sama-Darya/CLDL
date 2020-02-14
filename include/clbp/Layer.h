@@ -26,6 +26,8 @@ public:
     ~Layer();
 
     // initialisation:
+    enum whichGradient {exploding = 0, average = 1, vanishing = 2};
+
     void initLayer(int _layerIndex, Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim, Neuron::actMethod _am);
     void setlearningRate(double _learningRate);
 
@@ -35,7 +37,7 @@ public:
     void calcOutputs();
 
     // ->->forward->-> propagation of error:
-    void setErrorAtInput(double _leadForwardError); //only for the first layer
+    void setForwardError(double _leadForwardError); //only for the first layer
     void propErrorForward(int _index, double _value);
     void calcForwardError();
     double getForwardError(int _neuronIndex);
@@ -52,12 +54,21 @@ public:
     void propMidErrorForward(int _index, double _value);
     void propMidErrorBackward(int _neuronIndex, double _nextSum);
 
+    //exploding/vanishing gradient:
+    double getGradient(Neuron::whichError _whichError, whichGradient _whichGradient);
+
     //learning:
-    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff);
+    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff, double _localCoeff);
     void updateWeights();
 
     //global settings
     void setGlobalError(double _globalError);
+
+    //local backpropagation of error
+    void setLocalError(double _leadLocalError);
+    void propGlobalErrorBackwardLocally(int _neuronIndex, double _nextSum);
+    double getLocalError(int _neuronIndex);
+
 
     //getters:
     Neuron *getNeuron(int _neuronIndex);
@@ -98,10 +109,19 @@ private:
     //global settings
     double globalError = 0;
 
+    double leadLocalError =0;
+
+    //exploding vasnishing gradient:
+    double averageError = 0;
+    double maxError = 0;
+    double minError = 0;
+
+
     //learning:
     double backwardsCoeff = 0;
     double midCoeff = 0;
     double forwardCoeff = 0;
     double globalCoeff = 0;
+    double localCoeff = 0;
     double weightChange=0;
 };

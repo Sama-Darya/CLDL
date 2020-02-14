@@ -31,7 +31,7 @@ public:
     void propInputs();
 
     //->->forward->-> propagation of error:
-    void setErrorAtInput(double _leadForwardError); //only for the first layer
+    void setForwardError(double _leadForwardError); //only for the first layer
     void propErrorForward();
 
     //back propagation of error
@@ -43,12 +43,19 @@ public:
     void propMidErrorForward();
     void propMidErrorBackward();
 
+    //exploding/vanishing gradient:
+    double getGradient(Neuron::whichError _whichError, Layer::whichGradient _whichGradient);
+
     //learning:
-    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff);
+    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff, double _localCoeff);
     void updateWeights();
 
     //global settings
     void setGlobalError(double _globalError);
+
+    //local backpropagation of error
+    void setLocalError(double _leadLocalError);
+    void propGlobalErrorBackwardLocally();
 
     // getters:
     Layer *getLayer(int _layerIndex);
@@ -89,12 +96,18 @@ private:
     int midLayerIndex = 0;
     double theLeadMidError = 0;
 
+    //gradient
+    double *errorGradient = 0;
+
     //learning
     double backwardsCoeff = 0;
     double midCoeff = 0;
     double forwardCoeff = 0;
     double globalCoeff = 0;
+    double localCoeff = 0;
 
     //global settings
     double globalError = 0;
+
+    double theLeadLocalError = 0;
 };

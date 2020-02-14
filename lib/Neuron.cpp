@@ -48,16 +48,16 @@ Neuron::~Neuron(){
 void Neuron::initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim, biasInitMethod _bim, Neuron::actMethod _am){
     myLayerIndex = _layerIndex;
     myNeuronIndex = _neuronIndex;
-    for (int i=0; i<nInputs; i++){
-        switch (_wim){
+    for (int i=0; i<nInputs; i++) {
+        switch (_wim) {
             case W_ZEROS:
-                weights[i]=0;
+                weights[i] = 0;
                 break;
             case W_ONES:
-                weights[i]=1;
+                weights[i] = 1;
                 break;
             case W_RANDOM:
-                weights[i]=(((double)rand()/(RAND_MAX)));// * 2)-1;
+                weights[i] = (((double) rand() / (RAND_MAX)));// * 2)-1;
                 break;
                 //cout << " Neuron: weight is: " << weights[i] << endl;
                 /* rand function generates a random function between
@@ -65,14 +65,14 @@ void Neuron::initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim
                  * set to a value between 0 and 1 */
         }
         initialWeights[i] = weights[i];
-        weightSum = 0;
-        for (int i=0; i<nInputs; i++){
-            weightSum += fabs(weights[i]);
-            maxWeight = max(maxWeight, weights[i]);
-            minWeight = min (minWeight, weights[i]);
-        }
-
     }
+    weightSum = 0;
+    for (int i=0; i<nInputs; i++){
+        weightSum += fabs(weights[i]);
+        maxWeight = max(maxWeight, weights[i]);
+        minWeight = min (minWeight, weights[i]);
+    }
+
     switch (_bim){
         case B_NONE:
             bias=0;
@@ -138,7 +138,7 @@ void Neuron::calcOutput(){
 //forward propagation of error:
 //*************************************************************************************
 
-void Neuron::setErrorAtInput(double _value) {
+void Neuron::setForwardError(double _value) {
     for(int i=0; i<nInputs; i++){
         inputErrors[i] = _value;
     }
@@ -218,14 +218,34 @@ void Neuron::propMidErrorBackward(double _nextSum){
 }
 
 //*************************************************************************************
+//exploding/vanishing gradient:
+//*************************************************************************************
+
+double Neuron::getError(whichError _whichError){
+    switch(_whichError) {
+        case onBackwardError:
+            return (backwardError);
+            break;
+        case onMidError:
+            return (midError);
+            break;
+        case onForwardError:
+            return (forwardError);
+            break;
+    }
+
+}
+
+//*************************************************************************************
 //learning
 //*************************************************************************************
 
-void Neuron::setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff){
+void Neuron::setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff, double _localCoeff){
     backwardsCoeff = _backwardsCoeff;
     midCoeff = _midCoeff;
     forwardCoeff =_forwardCoeff;
     globalCoeff = _globalCoeff;
+    localCoeff = _localCoeff;
 }
 
 void Neuron::updateWeights(){
@@ -237,7 +257,10 @@ void Neuron::updateWeights(){
         force  = 1; //forces a bigger change on the first layer for visualisation in greyscale
     }
     for (int i=0; i<nInputs; i++){
-        weights[i] += learningRate * (globalCoeff * globalError + backwardsCoeff * backwardError + midCoeff * forwardError + forwardCoeff * midError) * inputs[i];
+        weights[i] += learningRate * inputs[i] * (globalCoeff * globalError
+                                        + backwardsCoeff * backwardError
+                                        + midCoeff * forwardError
+                                        + forwardCoeff * midError + localCoeff * localError);
         weightSum += fabs(weights[i]);
         maxWeight = max (maxWeight,weights[i]);
         minWeight = min (maxWeight,weights[i]);
@@ -290,6 +313,30 @@ void Neuron::setGlobalError(double _globalError){
   globalError = _globalError;
 }
 
+double Neuron::getGlobalError(){
+    return (globalError);
+}
+
+//*************************************************************************************
+//local backpropagation of error
+//*************************************************************************************
+
+void Neuron::setLocalError(double _leadLocalError){
+    localError = _leadLocalError * doActivationPrime(sum);
+    //cout << backwardError << endl;
+    assert(std::isfinite(backwardError));
+    /*might take a different format to propError*/
+}
+
+void Neuron::propGlobalErrorBackwardLocally(double _nextSum){
+    localError = _nextSum * doActivationPrime(sum);
+    assert(std::isfinite(_nextSum));
+}
+
+double Neuron::getLocalError(){
+    return (localError);
+}
+
 //*************************************************************************************
 // getters:
 //*************************************************************************************
@@ -326,10 +373,6 @@ double Neuron::getWeightChange(){
 
 double Neuron::getWeightDistance(){
     return sqrt(weightChange);
-}
-
-double Neuron::getGlobalError(){
-    return (globalError);
 }
 
 int Neuron::getnInputs(){

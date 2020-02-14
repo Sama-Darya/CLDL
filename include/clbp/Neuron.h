@@ -30,6 +30,7 @@ public:
     enum biasInitMethod { B_NONE = 0, B_RANDOM = 1 };
     enum weightInitMethod { W_ZEROS = 0, W_ONES = 1, W_RANDOM = 2 };
     enum actMethod {Act_Sigmoid = 0, Act_Tanh = 1, Act_NONE = 2};
+    enum whichError {onBackwardError = 0, onMidError = 1, onForwardError = 2};
 
     void initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim, biasInitMethod _bim, Neuron::actMethod _am);
     void setLearningRate(double _learningRate);
@@ -40,7 +41,7 @@ public:
     void calcOutput();
 
     //->->forward->-> propagation of error:
-    void setErrorAtInput(double _value);
+    void setForwardError(double _value);
     void propErrorForward(int _index, double _value);
     void calcForwardError();
 
@@ -56,15 +57,23 @@ public:
     void propMidErrorForward(int _index, double _value);
     void propMidErrorBackward(double _nextSum); // used for all layers except the output
 
+    //exploding/vanishing gradient:
+    double getError(whichError _whichError);
 
     //learning:
-    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff);
+    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff,  double _localCoeff);
     void updateWeights();
     double doActivation(double _sum);
     double doActivationPrime(double _input);
 
     //global settings
     void setGlobalError(double _globalError);
+    double getGlobalError();
+
+    //local backpropagation of error
+    void setLocalError(double _leadLocalError);
+    void propGlobalErrorBackwardLocally(double _nextSum);
+    double getLocalError();
 
     //getters:
     double getOutput();
@@ -72,7 +81,6 @@ public:
     double getSumOutput();
     double getWeights(int _inputIndex);
     double getInitWeights(int _inputIndex);
-    double getGlobalError();
     double getWeightChange();
     double getMaxWeight();
     double getMinWeight();
@@ -91,7 +99,6 @@ public:
     }
 
 private:
-
     // initialisation:
     int nInputs = 0;
     int myLayerIndex = 0;
@@ -131,6 +138,8 @@ private:
 
     //global setting
     double globalError = 0;
+    double localError = 0;
+    double localCoeff = 0;
 
 
 };

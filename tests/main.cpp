@@ -18,7 +18,7 @@ int main()
     net= new Net(nLayers, nNeuronsP, nInputs);
     net->initNetwork(Neuron::W_ONES, Neuron::B_NONE, Neuron::Act_Sigmoid);
     net->setLearningRate(learningRate);
-    net->setErrorCoeff(0,1,2,3);
+    net->setErrorCoeff(0,1,2,3,4);
 
 
     for (int i=0; i<10; i++){
@@ -27,12 +27,15 @@ int main()
         net->setGlobalError(leadError);
         net->setBackwardError(leadError);
         net->propErrorBackward();
-        net->setErrorAtInput(leadError);
+        net->setForwardError(leadError);
         net->propErrorForward();
         net->setMidError(1,leadError);
         net->propMidErrorForward();
         net->propMidErrorBackward();
+        net->setLocalError(leadError);
+        net->propGlobalErrorBackwardLocally();
         net->updateWeights();
+        cout << "THE GRADIENT: " << net->getGradient(Neuron::onBackwardError, Layer::exploding);
     }
 
     net->setInputs(inputsp);

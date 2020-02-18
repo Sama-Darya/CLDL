@@ -47,11 +47,18 @@ public:
     double getGradient(Neuron::whichError _whichError, Layer::whichGradient _whichGradient);
 
     //learning:
-    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff, double _localCoeff);
+    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff,
+                        double _midCoeff, double _forwardCoeff,
+                        double _localCoeff, double  _echoCoeff);
     void updateWeights();
 
     //global settings
     void setGlobalError(double _globalError);
+
+    void setEchoError(double _echoError);
+    void echoErrorBackward();
+    void echoErrorForward();
+    void doEchoError(double _theError);
 
     //local backpropagation of error
     void setLocalError(double _leadLocalError);
@@ -100,14 +107,10 @@ private:
     double *errorGradient = 0;
 
     //learning
-    double backwardsCoeff = 0;
-    double midCoeff = 0;
-    double forwardCoeff = 0;
-    double globalCoeff = 0;
-    double localCoeff = 0;
 
     //global settings
     double globalError = 0;
+    double echoError = 0;
 
     double theLeadLocalError = 0;
 };

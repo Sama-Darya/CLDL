@@ -222,14 +222,9 @@ double Layer::getGradient(Neuron::whichError _whichError, whichGradient _whichGr
 //learning:
 //*************************************************************************************
 
-void Layer::setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff, double _localCoeff){
-    backwardsCoeff = _backwardsCoeff;
-    midCoeff = _midCoeff;
-    forwardCoeff =_forwardCoeff;
-    globalCoeff = _globalCoeff;
-    localCoeff = _localCoeff;
+void Layer::setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff, double _localCoeff, double  _echoCoeff){
     for (int i=0; i<nNeurons; i++){
-        neurons[i]->setErrorCoeff(globalCoeff, backwardsCoeff, midCoeff, forwardCoeff, localCoeff);
+        neurons[i]->setErrorCoeff(_globalCoeff, _backwardsCoeff, _midCoeff, _forwardCoeff, _localCoeff, _echoCoeff);
     }
 }
 
@@ -247,6 +242,33 @@ void Layer::setGlobalError(double _globalError){
     globalError = _globalError;
     for (int i=0; i<nNeurons; i++){
         neurons[i]->setGlobalError(globalError);
+    }
+}
+
+void Layer::setEchoError(double _echoError) {
+    /* this is only for the final layer */
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->setEchoError(_echoError);
+    }
+}
+
+double Layer::getEchoError(int _neuronIndex){
+    return (neurons[_neuronIndex]->getEchoError());
+}
+
+void Layer::echoErrorBackward(int _neuronIndex, double _nextSum){
+    neurons[_neuronIndex]->echoErrorBackward(_nextSum);
+}
+
+void Layer::echoErrorForward(int _index, double _value){
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->echoErrorForward(_index, _value);
+    }
+}
+
+void Layer::calcEchoError(){
+    for (int i=0; i<nNeurons; i++){
+        neurons[i]->calcEchoError();
     }
 }
 

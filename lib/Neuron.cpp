@@ -29,6 +29,8 @@ Neuron::Neuron(int _nInputs)
     inputs = new double[nInputs];
     inputErrors = new double[nInputs];
     inputMidErrors = new double[nInputs];
+    echoErrors = new double[nInputs];
+
 
 }
 
@@ -38,6 +40,7 @@ Neuron::~Neuron(){
     delete [] inputs;
     delete [] inputErrors;
     delete [] inputMidErrors;
+    delete [] echoErrors;
 
 }
 
@@ -183,6 +186,14 @@ double Neuron::getBackwardError(){
     return (backwardError);
 }
 
+double Neuron::getEchoError(){
+    return (echoError);
+}
+
+void Neuron::echoErrorBackward(double _nextSum){
+    echoError = _nextSum * doActivationPrime(sum);
+    assert(std::isfinite(echoError));
+}
 //*************************************************************************************
 //MID propagation of error
 //*************************************************************************************
@@ -240,12 +251,13 @@ double Neuron::getError(whichError _whichError){
 //learning
 //*************************************************************************************
 
-void Neuron::setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff, double _localCoeff){
+void Neuron::setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff, double _localCoeff, double  _echoCoeff){
     backwardsCoeff = _backwardsCoeff;
     midCoeff = _midCoeff;
     forwardCoeff =_forwardCoeff;
     globalCoeff = _globalCoeff;
     localCoeff = _localCoeff;
+    echoCoeff= _echoCoeff;
 }
 
 void Neuron::updateWeights(){
@@ -256,21 +268,25 @@ void Neuron::updateWeights(){
     if (myLayerIndex == 0){
         force  = 1; //forces a bigger change on the first layer for visualisation in greyscale
     }
+    overallError = (  globalCoeff    * globalError
+                    + backwardsCoeff * backwardError
+                    + midCoeff       * forwardError
+                    + forwardCoeff   * midError
+                    + localCoeff     * localError
+                    + echoCoeff      * echoError);
+
     for (int i=0; i<nInputs; i++){
-        weights[i] += learningRate * inputs[i] * (globalCoeff * globalError
-                                        + backwardsCoeff * backwardError
-                                        + midCoeff * forwardError
-                                        + forwardCoeff * midError + localCoeff * localError);
+        weights[i] += learningRate * inputs[i] * overallError;
         weightSum += fabs(weights[i]);
         maxWeight = max (maxWeight,weights[i]);
         minWeight = min (maxWeight,weights[i]);
     }
-    if (myLayerIndex == 0 && myNeuronIndex == 0){
-        cout << " Global: " << globalCoeff << " x " << globalError
-                << " Backward: " << backwardsCoeff << " x " << backwardError
-                << " BiDirectional " << midCoeff << " x " << midError
-                << " Forward: " << forwardCoeff << " x " << forwardError << endl;
-    }
+//    if (myLayerIndex == 0 && myNeuronIndex == 0){
+//        cout << " Global: " << globalCoeff << " x " << globalError
+//                << " Backward: " << backwardsCoeff << " x " << backwardError
+//                << " BiDirectional " << midCoeff << " x " << midError
+//                << " Forward: " << forwardCoeff << " x " << forwardError << endl;
+//    }
 }
 
 double Neuron::doActivation(double _sum){
@@ -316,6 +332,29 @@ void Neuron::setGlobalError(double _globalError){
 double Neuron::getGlobalError(){
     return (globalError);
 }
+
+void Neuron::setEchoError(double _echoError){
+    echoError = _echoError * doActivationPrime(sum);
+    //cout << backwardError << endl;
+    assert(std::isfinite(echoError));
+    /*might take a different format to propError*/
+}
+
+void Neuron::echoErrorForward(int _index,  double _value){
+    assert((_index>=0)&&(_index<nInputs));
+    echoErrors[_index] = _value;
+}
+
+void Neuron::calcEchoError(){
+    double errorSum =0;
+    for (int i=0; i<nInputs; i++) {
+        errorSum += echoErrors[i] * weights[i];
+    }
+    assert(std::isfinite(errorSum));
+    echoError = errorSum * doActivationPrime(sum) / (1000); //could do normalisation here
+    assert(std::isfinite(echoError));
+}
+
 
 //*************************************************************************************
 //local backpropagation of error

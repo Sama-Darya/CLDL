@@ -58,7 +58,9 @@ public:
     double getGradient(Neuron::whichError _whichError, whichGradient _whichGradient);
 
     //learning:
-    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff, double _localCoeff);
+    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff,
+                        double _midCoeff, double _forwardCoeff,
+                        double _localCoeff, double  _echoCoeff);
     void updateWeights();
 
     //global settings
@@ -69,8 +71,14 @@ public:
     void propGlobalErrorBackwardLocally(int _neuronIndex, double _nextSum);
     double getLocalError(int _neuronIndex);
 
+    void setEchoError(double _clError);
+    void echoErrorBackward(int _neuronIndex, double _nextSum);
+    double getEchoError(int _neuronIndex);
+    void echoErrorForward(int _index, double _value);
+    void calcEchoError();
 
-    //getters:
+
+        //getters:
     Neuron *getNeuron(int _neuronIndex);
     int getnNeurons();
     double getOutput(int _neuronIndex);
@@ -118,10 +126,5 @@ private:
 
 
     //learning:
-    double backwardsCoeff = 0;
-    double midCoeff = 0;
-    double forwardCoeff = 0;
-    double globalCoeff = 0;
-    double localCoeff = 0;
     double weightChange=0;
 };

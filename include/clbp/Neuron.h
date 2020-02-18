@@ -46,7 +46,7 @@ public:
     void calcForwardError();
 
     //back propagation of error
-    void setBackwardError(double _nextSum);  // for the output layer only
+    void setBackwardError(double _leadError);  // for the output layer only
     void propErrorBackward(double _nextSum); // used for all layers except the output
     double getBackwardError();
 
@@ -61,7 +61,9 @@ public:
     double getError(whichError _whichError);
 
     //learning:
-    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff, double _midCoeff, double _forwardCoeff,  double _localCoeff);
+    void setErrorCoeff(double _globalCoeff, double _backwardsCoeff,
+                        double _midCoeff, double _forwardCoeff,
+                        double _localCoeff, double  _echoCoeff);
     void updateWeights();
     double doActivation(double _sum);
     double doActivationPrime(double _input);
@@ -70,7 +72,19 @@ public:
     void setGlobalError(double _globalError);
     double getGlobalError();
 
-    //local backpropagation of error
+    void setEchoError(double _echoError);  // for the output layer only
+    double getEchoError();
+    void echoErrorBackward(double _nextSum);
+    void echoErrorForward(int _index,  double _value);
+
+    void calcEchoError();
+
+
+
+
+
+
+        //local backpropagation of error
     void setLocalError(double _leadLocalError);
     void propGlobalErrorBackwardLocally(double _nextSum);
     double getLocalError();
@@ -139,7 +153,13 @@ private:
     //global setting
     double globalError = 0;
     double localError = 0;
+    double echoCoeff = 0;
     double localCoeff = 0;
+
+    double overallError = 0;
+    double echoError = 0;
+    double *echoErrors = 0;
+
 
 
 };

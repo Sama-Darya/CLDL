@@ -11,4 +11,3 @@ add_library(clBP
 
 target_include_directories(clBP PUBLIC include)
 
-add_subdirectory(tests)

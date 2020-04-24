@@ -1,4 +1,4 @@
-# CLDL: closed-loop Deep Learning
+# CLDL: Closed-Loop Deep Learning
  This is a flexible low level library that allows for development of innovative update rules in the context of
  closed-loop deep learning. It can be used with the conventional back-propagation algorithm or the newly developed
  'local propagation of global (closed-loop) error' algorithm. This repository is intended for use as an external

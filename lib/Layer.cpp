@@ -1,5 +1,5 @@
-#include "clbp/Layer.h"
-#include "clbp/Neuron.h"
+#include "cldl/Layer.h"
+#include "cldl/Neuron.h"
 
 #include <stdio.h>
 #include <assert.h>

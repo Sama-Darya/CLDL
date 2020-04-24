@@ -5,4 +5,4 @@ set(CMAKE_CXX_STANDARD 11)
 project (tests)
 
 add_executable(tests main.cpp)
-target_link_libraries(tests PRIVATE clBP)
+target_link_libraries(tests PRIVATE CLDL)

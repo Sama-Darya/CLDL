@@ -1,6 +1,6 @@
-#include "clbp/Net.h"
-#include "clbp/Layer.h"
-#include "clbp/Neuron.h"
+#include "cldl/Net.h"
+#include "cldl/Layer.h"
+#include "cldl/Neuron.h"
 
 #include <stdio.h>
 #include <assert.h>

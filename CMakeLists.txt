@@ -11,3 +11,4 @@ add_library(CLDL
 
 target_include_directories(CLDL PUBLIC include)
 
+add_subdirectory(tests)

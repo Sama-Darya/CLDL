@@ -46,7 +46,7 @@ Neuron::~Neuron(){
 //initialisation:
 //*************************************************************************************
 
-void Neuron::initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim, biasInitMethod _bim, Neuron::actMethod _am){
+void Neuron::initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim, biasInitMethod _bim, actMethod _am){
     myLayerIndex = _layerIndex;
     myNeuronIndex = _neuronIndex;
     for (int i=0; i<nInputs; i++) {

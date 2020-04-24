@@ -206,7 +206,7 @@ double Net::getGradient(Neuron::whichError _whichError, Layer::whichGradient _wh
     for (int i=0; i<nLayers; i++) {
         errorGradient[i] = layers[i]->getGradient(_whichError, _whichGradient);
     }
-    double gradientRatio = errorGradient[0] ; ///errorGradient[0];
+    double gradientRatio = errorGradient[nLayers -1] / errorGradient[0] ; ///errorGradient[0];
     assert(std::isfinite(gradientRatio));
     return gradientRatio;
 }
@@ -286,7 +286,7 @@ void Net::echoErrorForward(){
 
 void Net::doEchoError(double _theError){
     setEchoError(_theError);
-    while (layers[nLayers-1]->getEchoError(0) != 0){
+    while (abs(layers[nLayers-1]->getEchoError(0)) >= 0.0001){
         echoErrorBackward();
         updateWeights();
         echoErrorForward();

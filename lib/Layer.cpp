@@ -16,8 +16,6 @@
 #include <string>
 #include <numeric>
 #include <vector>
-
-
 #include <fstream>
 
 //*************************************************************************************

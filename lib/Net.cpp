@@ -392,10 +392,9 @@ void Net::saveWeights(){
 }
 
 void Net::snapWeights(){
-  layers[0]->snapWeights();
-    // for (int i=0; i<nLayers; i++){
-    //     layers[i]->snapWeights();
-    // }
+    for (int i=0; i<nLayers; i++){
+        layers[i]->snapWeights();
+    }
 }
 
 void Net::printNetwork(){

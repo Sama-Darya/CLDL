@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 set(CMAKE_CXX_STANDARD 11)
 
-project (CLDL)
+project(CLDL)
 
 add_library(CLDL
         lib/Layer.cpp

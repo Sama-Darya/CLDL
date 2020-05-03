@@ -17,3 +17,8 @@ and type:
 - ``make``
 
 record the path to both the generated library file (``libCLDL.a``) and of the ``include`` directory for external use in other projects.
+
+## Unit Test:
+A Unit test is included in the tests directory that shows how the library is used for learning with back-propagation. The executable tests will be generated automatically when building CLDL. Run the test by doing:
+- ``cd tests``
+- ``./tests``

@@ -22,3 +22,17 @@ record the path to both the generated library file (``libCLDL.a``) and of the ``
 A Unit test is included in the tests directory that shows how the library is used for learning with back-propagation. The executable tests will be generated automatically when building CLDL. Run the test by doing:
 - ``cd tests``
 - ``./tests``
+
+## License
+
+GNU GENERAL PUBLIC LICENSE
+
+Version 3, 29 June 2007
+
+```
+(C) 2018,2019,2020 Sama Darya <sama.darya.uk@gmail.com>
+
+```
+## Citation
+
+[![DOI](https://zenodo.org/badge/DOI/xx.xxxx/zenodo.xxxxxxx.svg)](https://doi.org/xx.xxxx/zenodo.xxxxxxx)

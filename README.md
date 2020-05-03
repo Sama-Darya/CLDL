@@ -35,4 +35,4 @@ Version 3, 29 June 2007
 ```
 ## Citation
 
-[![DOI](https://zenodo.org/badge/DOI/xx.xxxx/zenodo.xxxxxxx.svg)](https://doi.org/xx.xxxx/zenodo.xxxxxxx)
+[![DOI](https://zenodo.org/badge/167952707.svg)](https://zenodo.org/badge/latestdoi/167952707)

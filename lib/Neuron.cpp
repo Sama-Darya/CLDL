@@ -28,7 +28,7 @@ Neuron::Neuron(int _nInputs)
     inputErrors = new double[nInputs];
     inputMidErrors = new double[nInputs];
     echoErrors = new double[nInputs];
-    //cout << "neuron" << endl;
+//    cout << "neuron reports" << endl;
 
 }
 
@@ -62,7 +62,7 @@ void Neuron::initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim
                 break;
                 //cout << " Neuron: weight is: " << weights[i] << endl;
                 /* rand function generates a random function between
-                 * 0 and RAND_MAX, after the devision the weights are
+                 * 0 and RAND_MAX, after the division the weights are
                  * set to a value between 0 and 1 */
         }
         initialWeights[i] = weights[i];
@@ -279,8 +279,15 @@ void Neuron::updateWeights(){
                     + localCoeff     * localError
                     + echoCoeff      * echoError);
 
+    if (backwardError < 0){
+        combinedError = 0 - abs(localError);
+    }else{
+        combinedError = 0 + abs(localError);
+    }
+
+
     for (int i=0; i<nInputs; i++){
-        weights[i] += learningRate * inputs[i] * overallError * force;
+        weights[i] += learningRate * inputs[i] * combinedError * force;
         weightSum += fabs(weights[i]);
         maxWeight = max (maxWeight,weights[i]);
         minWeight = min (maxWeight,weights[i]);

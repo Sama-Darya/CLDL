@@ -353,6 +353,8 @@ private:
     
     int iHaveReported = 0;
 
+    double combinedError = 0;
+
     //forward propagation of inputs:
     double *inputs = 0;
     double bias = 0;

@@ -16,3 +16,7 @@ Makefile
 CMakeCache.txt
 
 tests/tests
+
+CMakeLists.txt.user
+
+*.csv

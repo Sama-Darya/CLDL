@@ -1,7 +1,6 @@
 #include "cldl/Net.h"
 #include "cldl/Layer.h"
 #include "cldl/Neuron.h"
-
 #include <stdio.h>
 #include <assert.h>
 #include <iostream>
@@ -17,7 +16,6 @@
 #include <string>
 #include <numeric>
 #include <vector>
-
 using namespace std;
 
 //*************************************************************************************
@@ -45,7 +43,7 @@ Net::Net(int _nLayers, int* _nNeurons, int _nInputs){
     }
     nOutputs=layers[nLayers-1]->getnNeurons();
     errorGradient= new double[nLayers];
-    //cout << "net" << endl;
+    cout << "net update message" << endl;
 }
 
 Net::~Net(){
@@ -110,6 +108,46 @@ void Net::propErrorForward(){
         }
     }
     layers[nLayers-1]->calcForwardError();
+}
+
+//*************************************************************************************
+//all-in-one back propagation of error
+//*************************************************************************************
+
+void Net::allInOneBackProp(int startLayerIndex[]){
+    double tempError = 0;
+    double tempWeight = 0;
+    int jumpLayerIndex = startLayerIndex[0];
+    int jumpCount = 0;
+    for (int i = nLayers-1; i > 0 ; i--){ //iterate through the layers
+        for (int k = 0; k < layers[i-1]->getnNeurons(); k++){ //iterate through the inputs to each layer
+            double weightSumer = 0.0;
+            int counter = 0;
+            double thisSum = 0.00;
+            for (int j = 0; j < layers[i]->getnNeurons(); j++){ //iterate through the neurons of each layer
+                if(i == jumpLayerIndex){
+                    cout << " jumped at layer index : " << i << endl;
+                    tempError = globalError;
+                    jumpCount += 1;
+                    jumpLayerIndex = startLayerIndex[jumpCount];
+                    assert((jumpCount<=nLayers)&&(jumpCount>=0));
+                }else{
+                    tempError = layers[i]->getBackwardError(j);
+                }
+                tempWeight = layers[i]->getWeights(j,k);
+                thisSum += (tempError * tempWeight);
+                weightSumer += fabs(tempWeight);
+                counter += 1;
+            }
+            double normSum = thisSum; // / weightSumer;
+            assert(std::isfinite(thisSum));
+            assert(std::isfinite(weightSumer));
+            assert(std::isfinite(counter));
+            assert(std::isfinite(normSum));
+            layers[i-1]->propErrorBackward(k, normSum);
+          }
+    }
+    cout << "--------------------------------------------------" << endl;
 }
 
 //*************************************************************************************

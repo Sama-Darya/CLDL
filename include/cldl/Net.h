@@ -94,6 +94,8 @@ public:
  */
     void propErrorBackward();
 
+    void allInOneBackProp(int startLayerIndex[]);
+
 /**
  * Sets the close-loop error to the a chosen layer to be propagated bilaterally.
  * @param _layerIndex The index of the layer at which to inject the error

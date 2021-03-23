@@ -20,3 +20,5 @@ tests/tests
 CMakeLists.txt.user
 
 *.csv
+
+Testing/

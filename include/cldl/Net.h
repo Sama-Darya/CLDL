@@ -254,9 +254,6 @@ public:
     void printNetwork();
 
 private:
-
-    int* injectionPointsAscending = nullptr;
-
     /**
      * Total number of hidden layers
      */

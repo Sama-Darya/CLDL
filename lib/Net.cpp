@@ -23,10 +23,6 @@ Net::Net(int _nLayers, int* _nNeurons, int _nInputs, int _nInternalErrors){
     nLayers = _nLayers; //no. of layers including inputs and outputs layers
     layers= new Layer*[nLayers];
     nInternalErrors = _nInternalErrors;
-    injectionPointsAscending = new int[nLayers];
-    for (int i = 0; i<nLayers; i++){
-        injectionPointsAscending[i] = 0;
-    }
     int* nNeuronsp = _nNeurons; //number of neurons in each layer
     nInputs=_nInputs; // the no. of inputs to the network (i.e. the first layer)
     //cout << "nInputs: " << nInputs << endl;

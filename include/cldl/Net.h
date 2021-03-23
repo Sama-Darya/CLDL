@@ -45,6 +45,8 @@ public:
  **/
     ~Net();
 
+    enum propagationDirection {BACKWARD = 0 , FORWARD = 1};
+
 /** Dictates the initialisation of the weights and biases
  * and determines the activation function of the neurons.
  * \param _wim weights initialisation method,
@@ -72,6 +74,12 @@ public:
  */
     void propInputs();
 
+    void masterPropagate(std::vector<int> &injectionLayerIndex, int _internalErrorIndex, propagationDirection _propDir, double _controlError);
+
+    void customBackProp(std::vector<int> &startLayerIndex, int internalErrorIndex, double _controlError);
+    void customForwardProp(std::vector<int> &injectionLayerIndex, int _internalErrorIndex, double _controlError);
+
+
 /**
  * Sets the error at the input layer to be propagated forward.
  * @param _leadForwardError The closed-loop error for learning
@@ -93,9 +101,6 @@ public:
  * Propagates the _leadError backward through the network.
  */
     void propErrorBackward();
-
-    void customBackProp(const int *startLayerIndex, int internalErrorIndex);
-    void customForwardProp(const int *injectionLayerIndex, int _internalErrorIndex);
 
 /**
  * Sets the close-loop error to the a chosen layer to be propagated bilaterally.
@@ -250,6 +255,8 @@ public:
 
 private:
 
+    int* injectionPointsAscending = nullptr;
+
     /**
      * Total number of hidden layers
      */
@@ -307,7 +314,8 @@ private:
     /**
      * The global error that is passed to every neuron
      */
-    double globalError = 0;
+
+    double controlError = 0;
     /**
      * The error to be propagated bac and forth through the network
      */
@@ -316,4 +324,5 @@ private:
      * The error to be propagated locally
      */
     double theLeadLocalError = 0;
+
 };

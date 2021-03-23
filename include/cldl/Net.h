@@ -37,7 +37,7 @@ public:
  * neurons for all layers need to have the length of _nLayers.
  * \param _nInputs Number of Inputs to the network
  **/
-    Net(int _nLayers, int *_nNeurons, int _nInputs);
+    Net(int _nLayers, int *_nNeurons, int _nInputs, int _nInternalErrors);
 
 /**
  * Destructor
@@ -94,7 +94,8 @@ public:
  */
     void propErrorBackward();
 
-    void allInOneBackProp(int startLayerIndex[]);
+    void customBackProp(const int *startLayerIndex, int internalErrorIndex);
+    void customForwardProp(const int *injectionLayerIndex, int _internalErrorIndex);
 
 /**
  * Sets the close-loop error to the a chosen layer to be propagated bilaterally.
@@ -257,6 +258,8 @@ private:
      * total number of neurons
      */
     int nNeurons = 0;
+
+    int nInternalErrors = 0;
     /**
      * total number of weights
      */
@@ -276,17 +279,17 @@ private:
     /**
      * A double pointer to the layers in the network
      */
-    Layer **layers = 0;
+    Layer **layers = nullptr;
     /**
      * A pointer to the inputs of the network
      */
-    const double *inputs = 0;
+    const double *inputs = nullptr;
     /**
      * The error to be propagated forward
      */
     double leadForwardError = 0;
     /**
-     * The error to be propagated bakward
+     * The error to be propagated backward
      */
     double theLeadError = 0;
     /**
@@ -300,7 +303,7 @@ private:
     /**
      * A pointer to the gradient of the error
      */
-    double *errorGradient = NULL;
+    double *errorGradient = nullptr;
     /**
      * The global error that is passed to every neuron
      */

@@ -22,9 +22,10 @@ using namespace std;
 //initialisation:
 //*************************************************************************************
 
-Net::Net(int _nLayers, int* _nNeurons, int _nInputs){
+Net::Net(int _nLayers, int* _nNeurons, int _nInputs, int _nInternalErrors){
     nLayers = _nLayers; //no. of layers including inputs and outputs layers
     layers= new Layer*[nLayers];
+    nInternalErrors = _nInternalErrors;
     int* nNeuronsp = _nNeurons; //number of neurons in each layer
     nInputs=_nInputs; // the no. of inputs to the network (i.e. the first layer)
     //cout << "nInputs: " << nInputs << endl;
@@ -33,7 +34,7 @@ Net::Net(int _nLayers, int* _nNeurons, int _nInputs){
         int numNeurons= *nNeuronsp; //no. neurons in this layer
         if (i==0){nInput=nInputs;}
         /* no. inputs to the first layer is equal to no. inputs to the network */
-        layers[i]= new Layer(numNeurons, nInput);
+        layers[i]= new Layer(numNeurons, nInput, nInternalErrors);
         nNeurons += numNeurons;
         nWeights += (numNeurons * nInput);
         nInput=numNeurons;
@@ -93,63 +94,66 @@ void Net::propInputs(){
 //*************************************************************************************
 //forward propagation of error:
 //*************************************************************************************
-
-void Net::setForwardError(double _leadForwardError){
-    leadForwardError=_leadForwardError;
-    layers[0]->setForwardError(leadForwardError);
-}
-
-void Net::propErrorForward(){
-    for (int i=0; i<nLayers-1; i++){
-        layers[i]->calcForwardError();
-        for (int j=0; j<layers[i]->getnNeurons(); j++){
-            double inputOuput = layers[i]->getForwardError(j);
-            layers[i+1]->propErrorForward(j, inputOuput);
+void Net::customForwardProp(const int *injectionLayerIndex, int _internalErrorIndex){
+    double inputOutput = 0.00;
+    int nextInjectionLayerIndex = injectionLayerIndex[0];
+    int injectionCount = 0;
+    for(int i = 0; i < layers[0]->getnNeurons(); i++){
+        layers[0]->setInternalErrors(_internalErrorIndex, globalError, i); // setting the internal errors in the first layer
+    }
+    for (int L_index=0; L_index<nLayers-1; L_index++){
+        for (int N_index=0; N_index<layers[L_index]->getnNeurons(); N_index++){
+            if(L_index == nextInjectionLayerIndex){
+                assert((injectionCount<=nLayers)&&(injectionCount>=0));
+                cout << " jumped at layer index : " << L_index << endl;
+                inputOutput = globalError;
+                injectionCount += 1;
+                nextInjectionLayerIndex = injectionLayerIndex[injectionCount];
+            }else{
+                inputOutput = layers[L_index]->getInternalErrors(_internalErrorIndex, N_index);
+            }
+            layers[L_index+1]->setErrorInputsAndCalculateInternalError(N_index, inputOutput, _internalErrorIndex);
         }
     }
-    layers[nLayers-1]->calcForwardError();
 }
-
 //*************************************************************************************
 //all-in-one back propagation of error
 //*************************************************************************************
-
-void Net::allInOneBackProp(int startLayerIndex[]){
+void Net::customBackProp(const int *injectionLayerIndex, int _internalErrorIndex){
     double tempError = 0;
     double tempWeight = 0;
-    int jumpLayerIndex = startLayerIndex[0];
-    int jumpCount = 0;
-    for (int i = nLayers-1; i > 0 ; i--){ //iterate through the layers
-        for (int k = 0; k < layers[i-1]->getnNeurons(); k++){ //iterate through the inputs to each layer
-            double weightSumer = 0.0;
+    int nextInjectionLayerIndex = injectionLayerIndex[0];
+    int injectionCount = 0;
+    for(int i=0; i<layers[nLayers-1]->getnNeurons(); i++){ //set the internal error in the final layer
+        layers[nLayers-1]->setInternalErrors(_internalErrorIndex, globalError, i);
+    }
+    for (int L_index = nLayers-1; L_index > 0 ; L_index--){ //iterate through the layers
+        for (int wn_index = 0; wn_index < layers[L_index-1]->getnNeurons(); wn_index++){ //iterate through the inputs to each layer
+            double weightSum = 0.0;
             int counter = 0;
             double thisSum = 0.00;
-            for (int j = 0; j < layers[i]->getnNeurons(); j++){ //iterate through the neurons of each layer
-                if(i == jumpLayerIndex){
-                    cout << " jumped at layer index : " << i << endl;
+            for (int n_index = 0; n_index < layers[L_index]->getnNeurons(); n_index++){ //iterate through the neurons of each layer
+                if( L_index == nextInjectionLayerIndex){
+                    assert((injectionCount<=nLayers)&&(injectionCount>=0));
+                    cout << " jumped at layer index : " << L_index << endl;
                     tempError = globalError;
-                    jumpCount += 1;
-                    jumpLayerIndex = startLayerIndex[jumpCount];
-                    assert((jumpCount<=nLayers)&&(jumpCount>=0));
+                    injectionCount += 1;
+                    nextInjectionLayerIndex = injectionLayerIndex[injectionCount];
                 }else{
-                    tempError = layers[i]->getBackwardError(j);
+                    tempError = layers[L_index]->getInternalErrors(_internalErrorIndex, n_index);
                 }
-                tempWeight = layers[i]->getWeights(j,k);
+                tempWeight = layers[L_index]->getWeights(n_index, wn_index);
                 thisSum += (tempError * tempWeight);
-                weightSumer += fabs(tempWeight);
+                weightSum += fabs(tempWeight);
                 counter += 1;
             }
-            double normSum = thisSum; // / weightSumer;
-            assert(std::isfinite(thisSum));
-            assert(std::isfinite(weightSumer));
-            assert(std::isfinite(counter));
-            assert(std::isfinite(normSum));
-            layers[i-1]->propErrorBackward(k, normSum);
+            double normSum = thisSum; // / weightSum;
+            assert((std::isfinite(thisSum)) && (std::isfinite(weightSum)) && (std::isfinite(counter)) && (std::isfinite(normSum)));
+            layers[L_index-1]->setInternalErrors(_internalErrorIndex, normSum, wn_index);
           }
     }
     cout << "--------------------------------------------------" << endl;
 }
-
 //*************************************************************************************
 //back propagation of error
 //*************************************************************************************

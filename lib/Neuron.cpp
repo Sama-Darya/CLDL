@@ -19,7 +19,7 @@ using namespace std;
 // constructor de-constructor
 //*************************************************************************************
 
-Neuron::Neuron(int _nInputs)
+Neuron::Neuron(int _nInputs, int _nInternalErrors)
 {
     nInputs=_nInputs;
     weights = new double[nInputs];
@@ -28,6 +28,10 @@ Neuron::Neuron(int _nInputs)
     inputErrors = new double[nInputs];
     inputMidErrors = new double[nInputs];
     echoErrors = new double[nInputs];
+    nInternalErrors = _nInternalErrors;
+    internalErrors = new double[nInternalErrors];
+    internalErrorIsSet = new bool[nInternalErrors];
+
 //    cout << "neuron reports" << endl;
 
 }
@@ -39,6 +43,7 @@ Neuron::~Neuron(){
     delete [] inputErrors;
     delete [] inputMidErrors;
     delete [] echoErrors;
+    delete [] internalErrors;
 
 }
 
@@ -151,9 +156,22 @@ void Neuron::setForwardError(double _value) {
     }
 }
 
-void Neuron::propErrorForward(int _index,  double _value){
-    assert((_index>=0)&&(_index<nInputs));
-    inputErrors[_index] = _value;
+void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,  double _value, int _internalErrorIndex){
+    assert((_inputIndex>=0)&&(_inputIndex<nInputs));
+    inputErrors[_inputIndex] = _value;
+    countInputErrors += 1;
+    if (countInputErrors == nInputs){
+        double errorSum =0;
+        for (int i=0; i<nInputs; i++) {
+            errorSum += inputErrors[i] * weights[i];
+        }
+        assert(std::isfinite(errorSum));
+        internalErrors[_internalErrorIndex] = errorSum * doActivationPrime(sum); //could do normalisation here
+        internalErrorIsSet[_internalErrorIndex] = true;
+        assert(std::isfinite(forwardError));
+        countInputErrors = 0; // set the counter to zero again
+    }
+
 }
 
 void Neuron::calcForwardError(){
@@ -173,6 +191,19 @@ double Neuron::getForwardError(){
 //*************************************************************************************
 //back propagation of error
 //*************************************************************************************
+
+void Neuron::setInternalError(int _internalErrorIndex, double _sumValue){
+    assert((std::isfinite(_sumValue)) && (_internalErrorIndex<nInternalErrors) && (_internalErrorIndex>=0));
+    internalErrors[_internalErrorIndex] = _sumValue * doActivationPrime(sum);
+    assert(std::isfinite(internalErrors[_internalErrorIndex]));
+    internalErrorIsSet[_internalErrorIndex] = true;
+}
+
+double Neuron::getInternalErrors(int _internalErrorIndex){
+    assert((_internalErrorIndex>=0) && (_internalErrorIndex<nInternalErrors));
+    assert(internalErrorIsSet[_internalErrorIndex] == true);
+    return internalErrors[_internalErrorIndex];
+}
 
 void Neuron::setBackwardError(double _leadError){
     backwardError = _leadError * doActivationPrime(sum);

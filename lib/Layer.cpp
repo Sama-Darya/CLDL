@@ -22,15 +22,16 @@
 // constructor de-constructor
 //*************************************************************************************
 
-Layer::Layer(int _nNeurons, int _nInputs){
+Layer::Layer(int _nNeurons, int _nInputs, int _nInternalErrors){
     nNeurons = _nNeurons; // number of neurons in this layer
     nInputs = _nInputs; // number of inputs to each neuron
     neurons = new Neuron*[nNeurons];
+    nInternalErrors = _nInternalErrors;
     /* dynamic allocation of memory to n number of
      * neuron-pointers and returning a pointer, "neurons",
      * to the first element */
     for (int i=0;i<nNeurons;i++){
-        neurons[i]=new Neuron(nInputs);
+        neurons[i]=new Neuron(nInputs, nInternalErrors);
     }
     /* each element of "neurons" pointer is itself a pointer
      * to a neuron object with specific no. of inputs*/
@@ -112,9 +113,9 @@ void Layer::setForwardError(double _leadForwardError){
     }
 }
 
-void Layer::propErrorForward(int _index, double _value){
+void Layer::setErrorInputsAndCalculateInternalError(int _index, double _value, int _internalErrorIndex){
     for (int i=0; i<nNeurons; i++){
-        neurons[i]->propErrorForward(_index, _value);
+        neurons[i]->setErrorInputsAndCalculateInternalError(_index, _value, _internalErrorIndex);
     }
 }
 
@@ -131,7 +132,15 @@ double Layer::getForwardError(int _neuronIndex){
 //*************************************************************************************
 //back propagation of error:
 //*************************************************************************************
+void Layer::setInternalErrors(int _internalErrorIndex, double _sumValue, int _neuronIndex){
+    assert(isfinite(_sumValue));
+    neurons[_neuronIndex]->setInternalError(_internalErrorIndex, _sumValue);
+}
 
+double Layer::getInternalErrors(int _internalErrorIndex, int _neuronIndex){
+    assert((_neuronIndex<nNeurons) && (_neuronIndex>=0));
+    return neurons[_neuronIndex]->getInternalErrors(_internalErrorIndex);
+}
 void Layer::setBackwardError(double _leadBackwardError){
     /* this is only for the final layer */
     leadBackwardError = _leadBackwardError;

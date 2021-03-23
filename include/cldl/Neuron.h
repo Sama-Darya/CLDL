@@ -32,12 +32,15 @@ public:
      * Constructor for the Neuron class: it initialises a neuron with specific number fo inputs to that neuron
      * @param _nInputs
      */
-    Neuron(int _nInputs);
+    Neuron(int _nInputs, int _nInternalErrors);
     /**
      * Destructor
      * De-allocated any memory
      */
     ~Neuron();
+
+    void setInternalError(int _internalErrorIndex, double _sumValue);
+    double getInternalErrors(int _internalErrorIndex);
 
     /**
      * Options for method of initialising biases
@@ -116,7 +119,7 @@ public:
      * @param _index index of the error
      * @param _value value of the error
      */
-    void propErrorForward(int _index, double _value);
+    void setErrorInputsAndCalculateInternalError(int _inputIndex, double _value, int _internalErrorIndex);
 
     /**
      * Calculates the error to be propagated forward by doing a weighted sum of forward errors
@@ -348,8 +351,12 @@ private:
     int nInputs = 0;
     int myLayerIndex = 0;
     int myNeuronIndex = 0;
-    double *initialWeights = 0;
+    double *initialWeights = nullptr;
     double learningRate = 0;
+    int nInternalErrors = 0;
+    double *internalErrors = nullptr;
+    bool *internalErrorIsSet = nullptr;
+    int countInputErrors = 0;
     
     int iHaveReported = 0;
 

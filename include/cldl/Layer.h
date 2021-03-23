@@ -31,7 +31,7 @@ public:
      * @param _nNeurons Total number of neurons in the layer
      * @param _nInputs Total number of inputs to that layer
      */
-    Layer(int _nNeurons, int _nInputs);
+    Layer(int _nNeurons, int _nInputs, int _nInternalErrors);
     /**
      * Destructor
      * De-allocated any memory
@@ -73,6 +73,8 @@ public:
      * Demands that all neurons in this layer calculate their output
      */
     void calcOutputs();
+    void setInternalErrors(int _internalErrorIndex, double _sumValue, int _neuronIndex);
+    double getInternalErrors(int _internalErrorIndex, int _neuronIndex);
 
     /**
      * Sets the error to be propagated forward to all neurons in the first hidden layer only
@@ -85,7 +87,7 @@ public:
      * @param _index Index of input where the error originates form
      * @param _value The value of the error
      */
-    void propErrorForward(int _index, double _value);
+    void setErrorInputsAndCalculateInternalError(int _index, double _value, int _internalErrorIndex);
 
     /**
      * calculates the forward error by doing a weighed sum of forward errors and the weights
@@ -304,6 +306,7 @@ private:
     double learningRate = 0;
     int myLayerIndex = 0;
     Neuron **neurons = 0;
+    int nInternalErrors = 0;
     
     int layerHasReported = 0;
 

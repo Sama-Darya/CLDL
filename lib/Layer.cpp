@@ -1,18 +1,11 @@
 #include "cldl/Layer.h"
 #include "cldl/Neuron.h"
 
-#include <stdio.h>
-#include <assert.h>
 #include <iostream>
 #include <ctgmath>
 #include <cstdlib>
-#include <cstdio>
 #include <cassert>
-#include <fstream>
-#include <iostream>
-#include <math.h>
-#include <fstream>
-#include <iostream>
+#include <cmath>
 #include <string>
 #include <numeric>
 #include <vector>

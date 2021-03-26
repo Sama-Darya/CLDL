@@ -1,16 +1,11 @@
 #include "cldl/Neuron.h"
 
-#include <assert.h>
 #include <iostream>
-#include <ctgmath>
 #include <cstdlib>
-#include <cstdio>
 #include <cassert>
 #include <fstream>
-#include <iostream>
-#include <math.h>
+#include <cmath>
 #include <string>
-#include <numeric>
 #include <vector>
 
 using namespace std;
@@ -29,9 +24,6 @@ Neuron::Neuron(int _nInputs, int _nInternalErrors)
     nInternalErrors = _nInternalErrors;
     internalErrors = new double[nInternalErrors];
     internalErrorIsSet = new bool[nInternalErrors];
-
-//    cout << "neuron reports" << endl;
-
 }
 
 Neuron::~Neuron(){
@@ -100,10 +92,6 @@ void Neuron::setLearningRate(double _learningRate){
     learningRate=_learningRate;
 }
 
-//*************************************************************************************
-//forward propagation of inputs:
-//*************************************************************************************
-
 void Neuron::setInput(int _index,  double _value) {
     /* the seInput function sets one input value at the given index,
      * it has to be implemented in a loop inside the layer class to set
@@ -158,10 +146,6 @@ void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,  double _v
     }
 
 }
-
-//*************************************************************************************
-//back propagation of error
-//*************************************************************************************
 
 void Neuron::setInternalError(int _internalErrorIndex, double _sumValue){
     assert((std::isfinite(_sumValue)) && (_internalErrorIndex<nInternalErrors) && (_internalErrorIndex>=0));

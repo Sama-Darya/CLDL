@@ -23,8 +23,8 @@ int main(){
     net->setLearningRate(learningRate);
 
     std::vector<int> injectionLayers;
-    injectionLayers.reserve(5);
-    injectionLayers = {8,2,6,3,5};
+    injectionLayers.reserve(7);
+    injectionLayers = {8,9,2,6,3,5,0};
 
     for (int i = 0; i < iterations; i++){
         net->setInputs(inputsp);

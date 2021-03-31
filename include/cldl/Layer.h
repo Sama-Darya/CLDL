@@ -21,9 +21,12 @@ public:
     void setInputs(const double *_inputs);
     void propInputs(int _index, double _value);
     void calcOutputs();
-    void setInternalErrors(int _internalErrorIndex, double _sumValue, int _neuronIndex);
+    void setInternalErrors(int _internalErrorIndex, double _sumValue,
+                           int _neuronIndex, Neuron::errorMethod _errorMethod);
     double getInternalErrors(int _internalErrorIndex, int _neuronIndex);
-    void setErrorInputsAndCalculateInternalError(int _index, double _value, int _internalErrorIndex);
+    void setErrorInputsAndCalculateInternalError(int _index, double _value,
+                                                 int _internalErrorIndex,
+                                                 Neuron::errorMethod _errorMethod);
     void updateWeights();
     Neuron *getNeuron(int _neuronIndex);
     int getnNeurons();

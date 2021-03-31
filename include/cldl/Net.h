@@ -37,9 +37,15 @@ public:
     void setLearningRate(double _learningRate);
     void setInputs(const double *_inputs);
     void propInputs();
-    void masterPropagate(std::vector<int> &injectionLayerIndex, int _internalErrorIndex, propagationDirection _propDir, double _controlError);
-    void customBackProp(std::vector<int> &startLayerIndex, int internalErrorIndex, double _controlError);
-    void customForwardProp(std::vector<int> &injectionLayerIndex, int _internalErrorIndex, double _controlError);
+    void masterPropagate(std::vector<int> &injectionLayerIndex,
+                         int _internalErrorIndex, propagationDirection _propDir,
+                         double _controlError, Neuron::errorMethod _errorMethod);
+    void customBackProp(std::vector<int> &startLayerIndex,
+                        int internalErrorIndex, double _controlError,
+                        Neuron::errorMethod _errorMethod);
+    void customForwardProp(std::vector<int> &injectionLayerIndex,
+                           int _internalErrorIndex, double _controlError,
+                           Neuron::errorMethod _errorMethod);
     void updateWeights();
     Layer *getLayer(int _layerIndex);
     double getOutput(int _neuronIndex);

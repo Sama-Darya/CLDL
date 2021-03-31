@@ -1,5 +1,5 @@
-#include "cldl/Layer.h"
-#include "cldl/Neuron.h"
+#include "../include/cldl/Layer.h"
+#include "../include/cldl/Neuron.h"
 
 #include <iostream>
 #include <ctgmath>
@@ -98,17 +98,22 @@ void Layer::calcOutputs(){
 //forward propagation of error:
 //*************************************************************************************
 
-void Layer::setErrorInputsAndCalculateInternalError(int _index, double _value, int _internalErrorIndex){
+void Layer::setErrorInputsAndCalculateInternalError(int _index,
+                                                    double _value,int _internalErrorIndex,
+                                                    Neuron::errorMethod _errorMethod){
     for (int i=0; i<nNeurons; i++){
-        neurons[i]->setErrorInputsAndCalculateInternalError(_index, _value, _internalErrorIndex);
+        neurons[i]->setErrorInputsAndCalculateInternalError(_index, _value,
+                                                            _internalErrorIndex,_errorMethod);
     }
 }
 //*************************************************************************************
 //back propagation of error:
 //*************************************************************************************
-void Layer::setInternalErrors(int _internalErrorIndex, double _sumValue, int _neuronIndex){
+void Layer::setInternalErrors(int _internalErrorIndex, double _sumValue,
+                              int _neuronIndex, Neuron::errorMethod _errorMethod){
     assert(isfinite(_sumValue));
-    neurons[_neuronIndex]->setInternalError(_internalErrorIndex, _sumValue);
+    neurons[_neuronIndex]->setInternalError(_internalErrorIndex, _sumValue,
+                                            _errorMethod);
 }
 
 double Layer::getInternalErrors(int _internalErrorIndex, int _neuronIndex){

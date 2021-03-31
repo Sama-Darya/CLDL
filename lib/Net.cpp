@@ -1,18 +1,11 @@
-#include "cldl/Net.h"
-#include "cldl/Layer.h"
-#include "cldl/Neuron.h"
-#include <cstdio>
-#include <ctgmath>
-#include <cstdlib>
+#include "../include/cldl/Net.h"
+#include "../include/cldl/Layer.h"
+#include "../include/cldl/Neuron.h"
 #include <cassert>
 #include <cmath>
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <numeric>
 #include <vector>
 #include <algorithm>
-#include <array>
 using namespace std;
 
 //*************************************************************************************
@@ -40,7 +33,6 @@ Net::Net(int _nLayers, int* _nNeurons, int _nInputs, int _nInternalErrors){
         nNeuronsp++; //point to the no. of neurons in the next layer
     }
     nOutputs=layers[nLayers-1]->getnNeurons();
-    cout << "net update message" << endl;
 }
 
 Net::~Net(){
@@ -50,7 +42,8 @@ Net::~Net(){
     delete[] layers;
 }
 
-void Net::initNetwork(Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim, Neuron::actMethod _am){
+void Net::initNetwork(Neuron::weightInitMethod _wim,
+                      Neuron::biasInitMethod _bim, Neuron::actMethod _am){
     for (int i=0; i<nLayers; i++){
         layers[i]->initLayer(i, _wim, _bim, _am);
     }
@@ -86,15 +79,19 @@ void Net::propInputs(){
      * but this is not fed into any further layer*/
 }
 
-void Net::masterPropagate(std::vector<int> &injectionLayerIndex, int _internalErrorIndex, propagationDirection _propDir, double _controlError){
+void Net::masterPropagate(std::vector<int> &injectionLayerIndex,
+                          int _internalErrorIndex, propagationDirection _propDir,
+                          double _controlError, Neuron::errorMethod _errorMethod){
     switch(_propDir){
         case BACKWARD:
             std::sort(injectionLayerIndex.rbegin(), injectionLayerIndex.rend());
-            customBackProp(injectionLayerIndex, _internalErrorIndex, _controlError);
+            customBackProp(injectionLayerIndex, _internalErrorIndex,
+                           _controlError, _errorMethod);
             break;
         case FORWARD:
             std::sort(injectionLayerIndex.begin(), injectionLayerIndex.end());
-            customForwardProp(injectionLayerIndex, _internalErrorIndex, _controlError);
+            customForwardProp(injectionLayerIndex, _internalErrorIndex,
+                              _controlError, _errorMethod);
             break;
     }
 }
@@ -102,12 +99,15 @@ void Net::masterPropagate(std::vector<int> &injectionLayerIndex, int _internalEr
 //*************************************************************************************
 //forward propagation of error:
 //*************************************************************************************
-void Net::customForwardProp(std::vector<int> &injectionLayerIndex, int _internalErrorIndex, double _controlError){
+void Net::customForwardProp(std::vector<int> &injectionLayerIndex,
+                            int _internalErrorIndex, double _controlError,
+                            Neuron::errorMethod _errorMethod){
     int injectionCount = 0;
     int nextInjectionLayerIndex = injectionLayerIndex[0];
     controlError = _controlError;
     for(int i = 0; i < layers[nextInjectionLayerIndex]->getnNeurons(); i++){
-        layers[nextInjectionLayerIndex]->setInternalErrors(_internalErrorIndex, controlError, i); // setting the internal errors in the first layer
+        layers[nextInjectionLayerIndex]->setInternalErrors(_internalErrorIndex,
+                                                           controlError, i, _errorMethod); // setting the internal errors in the first layer
     }
     double inputOutput = 0.00;
     for (int L_index=nextInjectionLayerIndex; L_index<nLayers-1; L_index++){
@@ -121,19 +121,24 @@ void Net::customForwardProp(std::vector<int> &injectionLayerIndex, int _internal
             }else{
                 inputOutput = layers[L_index]->getInternalErrors(_internalErrorIndex, N_index);
             }
-            layers[L_index+1]->setErrorInputsAndCalculateInternalError(N_index, inputOutput, _internalErrorIndex);
+            layers[L_index+1]->setErrorInputsAndCalculateInternalError(N_index,
+                                                                       inputOutput, _internalErrorIndex,
+                                                                       _errorMethod);
         }
     }
 }
 
-void Net::customBackProp(std::vector<int> &injectionLayerIndex, int _internalErrorIndex, double _controlError){
+void Net::customBackProp(std::vector<int> &injectionLayerIndex,
+                         int _internalErrorIndex, double _controlError,
+                         Neuron::errorMethod _errorMethod){
     double tempError = 0;
     double tempWeight = 0;
     int nextInjectionLayerIndex = injectionLayerIndex[0];
     int injectionCount = 0;
     controlError = _controlError;
     for(int i=0; i<layers[nextInjectionLayerIndex]->getnNeurons(); i++){ //set the internal error in the final layer
-        layers[nextInjectionLayerIndex]->setInternalErrors(_internalErrorIndex, controlError, i);
+        layers[nextInjectionLayerIndex]->setInternalErrors(_internalErrorIndex,
+                                                           controlError, i, _errorMethod);
     }
     for (int L_index = nextInjectionLayerIndex; L_index > 0 ; L_index--){ //iterate through the layers
         for (int wn_index = 0; wn_index < layers[L_index-1]->getnNeurons(); wn_index++){ //iterate through the inputs to each layer
@@ -151,9 +156,9 @@ void Net::customBackProp(std::vector<int> &injectionLayerIndex, int _internalErr
                 tempWeight = layers[L_index]->getWeights(n_index, wn_index);
                 thisSum += (tempError * tempWeight);
             }
-            double normSum = thisSum;
-            assert((std::isfinite(thisSum)) && (std::isfinite(normSum)));
-            layers[L_index-1]->setInternalErrors(_internalErrorIndex, normSum, wn_index);
+            assert(std::isfinite(thisSum));
+            layers[L_index-1]->setInternalErrors(_internalErrorIndex, thisSum,
+                                                 wn_index, _errorMethod);
           }
     }
 }

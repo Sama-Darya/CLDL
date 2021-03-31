@@ -15,17 +15,22 @@ class Neuron {
 public:
     Neuron(int _nInputs, int _nInternalErrors);
     ~Neuron();
-    void setInternalError(int _internalErrorIndex, double _sumValue);
     double getInternalErrors(int _internalErrorIndex);
     enum biasInitMethod {B_NONE = 0, B_RANDOM = 1};
     enum weightInitMethod {W_ZEROS = 0, W_ONES = 1, W_RANDOM = 2};
     enum actMethod {Act_Sigmoid = 0, Act_Tanh = 1, Act_NONE = 2};
-    void initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim, biasInitMethod _bim, actMethod _am);
+    enum errorMethod {Value = 1, Absolute = 2, Sign = 3};
+    void initNeuron(int _neuronIndex, int _layerIndex, weightInitMethod _wim,
+                    biasInitMethod _bim, actMethod _am);
     void setLearningRate(double _learningRate);
     void setInput(int _index, double _value);
     void propInputs(int _index, double _value);
     int calcOutput(int _layerHasReported);
-    void setErrorInputsAndCalculateInternalError(int _inputIndex, double _value, int _internalErrorIndex);
+    void setInternalError(int _internalErrorIndex, double _sumValue,
+                          errorMethod _errorMethod);
+    void setErrorInputsAndCalculateInternalError(int _inputIndex,
+                                                 double _value, int _internalErrorIndex,
+                                                 errorMethod _errorMethod);
     void updateWeights();
     double doActivation(double _sum);
     double doActivationPrime(double _input);
@@ -58,8 +63,12 @@ private:
     double *inputErrors = nullptr;
     int nInternalErrors = 0;
     double *internalErrors = nullptr;
+    double* internalErrorForLearning = nullptr;
     bool *internalErrorIsSet = nullptr;
     int countInputErrors = 0;
+    int* internalErrorMethods = nullptr;
+    double resultantInternalError = 0;
+
 
     int iHaveReported = 0;
     double *inputs = nullptr;

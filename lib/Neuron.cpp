@@ -1,5 +1,4 @@
-#include "cldl/Neuron.h"
-
+#include "../include/cldl/Neuron.h"
 #include <iostream>
 #include <cstdlib>
 #include <cassert>
@@ -24,6 +23,12 @@ Neuron::Neuron(int _nInputs, int _nInternalErrors)
     nInternalErrors = _nInternalErrors;
     internalErrors = new double[nInternalErrors];
     internalErrorIsSet = new bool[nInternalErrors];
+    internalErrorMethods = new int(nInternalErrors);
+    internalErrorForLearning = new double(nInternalErrors);
+    for (int i = 0 ; i <nInternalErrors; i++){
+        internalErrorIsSet[i] = false;
+        internalErrorMethods[i] = 0;
+    }
 }
 
 Neuron::~Neuron(){
@@ -32,7 +37,7 @@ Neuron::~Neuron(){
     delete [] inputs;
     delete [] inputErrors;
     delete [] internalErrors;
-
+    delete [] internalErrorIsSet;
 }
 
 //*************************************************************************************
@@ -130,7 +135,9 @@ int Neuron::calcOutput(int _layerHasReported){
     return iHaveReported;
 }
 
-void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,  double _value, int _internalErrorIndex){
+void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,
+                                                     double _value, int _internalErrorIndex,
+                                                     errorMethod _errorMethod){
     assert((_inputIndex>=0)&&(_inputIndex<nInputs));
     inputErrors[_inputIndex] = _value;
     countInputErrors += 1;
@@ -140,18 +147,51 @@ void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,  double _v
             errorSum += inputErrors[i] * weights[i];
         }
         assert(std::isfinite(errorSum));
-        internalErrors[_internalErrorIndex] = errorSum * doActivationPrime(sum); //could do normalisation here
+        internalErrors[_internalErrorIndex] = errorSum * doActivationPrime(sum);
         internalErrorIsSet[_internalErrorIndex] = true;
+        internalErrorMethods[_internalErrorIndex] = _errorMethod;
+        switch(_errorMethod){
+            case(Value):
+                internalErrorForLearning[_internalErrorIndex] =
+                        internalErrors[_internalErrorIndex];
+                break;
+            case(Absolute):
+                internalErrorForLearning[_internalErrorIndex] =
+                        fabs(internalErrors[_internalErrorIndex]);
+                break;
+            case(Sign):
+                internalErrorForLearning[_internalErrorIndex] =
+                        internalErrors[_internalErrorIndex]
+                        / fabs(internalErrors[_internalErrorIndex]);
+                break;
+        }
         countInputErrors = 0; // set the counter to zero again
     }
-
 }
 
-void Neuron::setInternalError(int _internalErrorIndex, double _sumValue){
-    assert((std::isfinite(_sumValue)) && (_internalErrorIndex<nInternalErrors) && (_internalErrorIndex>=0));
+void Neuron::setInternalError(int _internalErrorIndex, double _sumValue,
+                              errorMethod _errorMethod){
+    assert((std::isfinite(_sumValue)) && (_internalErrorIndex<nInternalErrors)
+        && (_internalErrorIndex>=0));
     internalErrors[_internalErrorIndex] = _sumValue * doActivationPrime(sum);
     assert(std::isfinite(internalErrors[_internalErrorIndex]));
     internalErrorIsSet[_internalErrorIndex] = true;
+    internalErrorMethods[_internalErrorIndex] = _errorMethod;
+    switch(_errorMethod){
+        case(Value):
+            internalErrorForLearning[_internalErrorIndex] =
+                    internalErrors[_internalErrorIndex];
+            break;
+        case(Absolute):
+            internalErrorForLearning[_internalErrorIndex] =
+                    fabs(internalErrors[_internalErrorIndex]);
+            break;
+        case(Sign):
+            internalErrorForLearning[_internalErrorIndex] =
+                    internalErrors[_internalErrorIndex]
+                    / fabs(internalErrors[_internalErrorIndex]);
+            break;
+    }
 }
 
 double Neuron::getInternalErrors(int _internalErrorIndex){
@@ -161,6 +201,9 @@ double Neuron::getInternalErrors(int _internalErrorIndex){
 }
 
 void Neuron::updateWeights(){
+    for(int i=0; i<nInternalErrors; i++){
+        assert(internalErrorMethods[i] != 0);
+    }
     weightSum = 0;
     maxWeight = 0;
     minWeight = 0;
@@ -169,8 +212,13 @@ void Neuron::updateWeights(){
         force  = 1; //forces a bigger change on the first layer for visualisation in greyscale
     }
 
+    resultantInternalError = 0;
+    for (int j = 0 ; j<nInternalErrors; j++){
+        resultantInternalError *= internalErrorForLearning[j];
+    }
+
     for (int i=0; i<nInputs; i++){
-        weights[i] += learningRate * inputs[i] * force;
+        weights[i] += learningRate * inputs[i] * resultantInternalError * force;
         weightSum += fabs(weights[i]);
         maxWeight = max (maxWeight,weights[i]);
         minWeight = min (maxWeight,weights[i]);

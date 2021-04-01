@@ -22,3 +22,17 @@ CMakeLists.txt.user
 *.csv
 
 Testing/
+
+.idea/
+
+CMakeDoxyfile.in
+
+CMakeLists2.txt
+
+install_manifest.txt
+
+*.so
+
+*.1
+
+*.5

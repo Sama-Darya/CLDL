@@ -102,6 +102,7 @@ void Net::masterPropagate(std::vector<int> &injectionLayerIndex,
 void Net::customForwardProp(std::vector<int> &injectionLayerIndex,
                             int _internalErrorIndex, double _controlError,
                             Neuron::errorMethod _errorMethod){
+//    cout<< "got here" <<endl;
     int injectionCount = 0;
     int nextInjectionLayerIndex = injectionLayerIndex[0];
     controlError = _controlError;
@@ -113,8 +114,7 @@ void Net::customForwardProp(std::vector<int> &injectionLayerIndex,
     for (int L_index=nextInjectionLayerIndex; L_index<nLayers-1; L_index++){
         for (int N_index=0; N_index<layers[L_index]->getnNeurons(); N_index++){
             if(L_index == nextInjectionLayerIndex){
-                assert((injectionCount<nLayers)&&(injectionCount>=0));
-                cout << "f : " << L_index << endl;
+                assert((injectionCount<nLayers)&&(injectionCount>=0) && "NET failed");
                 inputOutput = controlError;
                 injectionCount += 1;
                 nextInjectionLayerIndex = injectionLayerIndex[injectionCount];
@@ -145,8 +145,7 @@ void Net::customBackProp(std::vector<int> &injectionLayerIndex,
             double thisSum = 0.00;
             for (int n_index = 0; n_index < layers[L_index]->getnNeurons(); n_index++){ //iterate through the neurons of each layer
                 if( L_index == nextInjectionLayerIndex){
-                    assert((injectionCount<=nLayers)&&(injectionCount>=0));
-                    cout << "b : " << L_index << endl;
+                    assert((injectionCount<=nLayers)&&(injectionCount>=0) && "NET failed");
                     tempError = controlError;
                     injectionCount += 1;
                     nextInjectionLayerIndex = injectionLayerIndex[injectionCount];
@@ -156,7 +155,7 @@ void Net::customBackProp(std::vector<int> &injectionLayerIndex,
                 tempWeight = layers[L_index]->getWeights(n_index, wn_index);
                 thisSum += (tempError * tempWeight);
             }
-            assert(std::isfinite(thisSum));
+            assert(std::isfinite(thisSum) && "NET failed");
             layers[L_index-1]->setInternalErrors(_internalErrorIndex, thisSum,
                                                  wn_index, _errorMethod);
           }
@@ -189,7 +188,7 @@ int Net::getnInputs(){
 }
 
 Layer* Net::getLayer(int _layerIndex){
-    assert(_layerIndex<nLayers);
+    assert(_layerIndex<nLayers && "NET failed");
     return (layers[_layerIndex]);
 }
 

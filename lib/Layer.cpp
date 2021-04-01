@@ -111,13 +111,15 @@ void Layer::setErrorInputsAndCalculateInternalError(int _index,
 //*************************************************************************************
 void Layer::setInternalErrors(int _internalErrorIndex, double _sumValue,
                               int _neuronIndex, Neuron::errorMethod _errorMethod){
-    assert(isfinite(_sumValue));
+    assert(isfinite(_sumValue) && (_internalErrorIndex >= 0)
+                && (_internalErrorIndex < nInternalErrors) &&
+           (_neuronIndex >= 0) && (_neuronIndex < nNeurons) &&"Layer failed");
     neurons[_neuronIndex]->setInternalError(_internalErrorIndex, _sumValue,
                                             _errorMethod);
 }
 
 double Layer::getInternalErrors(int _internalErrorIndex, int _neuronIndex){
-    assert((_neuronIndex<nNeurons) && (_neuronIndex>=0));
+    assert((_neuronIndex<nNeurons) && (_neuronIndex>=0) && "Layer failed");
     return neurons[_neuronIndex]->getInternalErrors(_internalErrorIndex);
 }
 
@@ -133,7 +135,7 @@ void Layer::updateWeights(){
 //*************************************************************************************
 
 Neuron* Layer::getNeuron(int _neuronIndex){
-    assert(_neuronIndex < nNeurons);
+    assert(_neuronIndex < nNeurons && "Layer failed");
     return (neurons[_neuronIndex]);
 }
 

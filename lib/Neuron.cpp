@@ -101,7 +101,7 @@ void Neuron::setInput(int _index,  double _value) {
     /* the seInput function sets one input value at the given index,
      * it has to be implemented in a loop inside the layer class to set
      * all the inputs associated with all the neurons in that layer*/
-    assert((_index>=0)&&(_index<nInputs));
+    assert((_index>=0)&&(_index<nInputs) && "Neuron failed");
     /*checking _index is a valid int, non-negative and within boundary*/
     inputs[_index] = _value;
     //cout << "Neuron the input is: " << _value << endl;
@@ -111,7 +111,7 @@ void Neuron::propInputs(int _index,  double _value){
     /*works like setInput function expect it only applies
      * to the neurons in the hidden and output layers
      * and not the input layer*/
-    assert((_index>=0)&&(_index<nInputs));
+    assert((_index>=0)&&(_index<nInputs) && "Neuron failed");
     inputs[_index] = _value;
 }
 
@@ -124,21 +124,21 @@ int Neuron::calcOutput(int _layerHasReported){
     if (myLayerIndex == 0){
         sum = sum * 0.01;
     }
-    assert(std::isfinite(sum));
+    assert(std::isfinite(sum) && "Neuron failed");
     output = doActivation(sum);
     iHaveReported = _layerHasReported;
     if (output > 0.49 && iHaveReported == 0){
         //cout << "I'm saturating, " << output << " layer: " << myLayerIndex << " neuron: " << myNeuronIndex << endl;
         iHaveReported = 1;
     }
-    assert(std::isfinite(output));
+    assert(std::isfinite(output) && "Neuron failed");
     return iHaveReported;
 }
 
 void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,
                                                      double _value, int _internalErrorIndex,
                                                      errorMethod _errorMethod){
-    assert((_inputIndex>=0)&&(_inputIndex<nInputs));
+    assert((_inputIndex>=0)&&(_inputIndex<nInputs) && "Neuron failed");
     inputErrors[_inputIndex] = _value;
     countInputErrors += 1;
     if (countInputErrors == nInputs){
@@ -146,7 +146,7 @@ void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,
         for (int i=0; i<nInputs; i++) {
             errorSum += inputErrors[i] * weights[i];
         }
-        assert(std::isfinite(errorSum));
+        assert(std::isfinite(errorSum) && "Neuron failed");
         internalErrors[_internalErrorIndex] = errorSum * doActivationPrime(sum);
         internalErrorIsSet[_internalErrorIndex] = true;
         internalErrorMethods[_internalErrorIndex] = _errorMethod;
@@ -172,37 +172,48 @@ void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,
 void Neuron::setInternalError(int _internalErrorIndex, double _sumValue,
                               errorMethod _errorMethod){
     assert((std::isfinite(_sumValue)) && (_internalErrorIndex<nInternalErrors)
-        && (_internalErrorIndex>=0));
+        && (_internalErrorIndex>=0) && "Neuron: set internal error failed");
     internalErrors[_internalErrorIndex] = _sumValue * doActivationPrime(sum);
-    assert(std::isfinite(internalErrors[_internalErrorIndex]));
+    assert(std::isfinite(internalErrors[_internalErrorIndex]) && "Neuron failed");
     internalErrorIsSet[_internalErrorIndex] = true;
     internalErrorMethods[_internalErrorIndex] = _errorMethod;
     switch(_errorMethod){
         case(Value):
             internalErrorForLearning[_internalErrorIndex] =
                     internalErrors[_internalErrorIndex];
+            assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
             break;
         case(Absolute):
             internalErrorForLearning[_internalErrorIndex] =
                     fabs(internalErrors[_internalErrorIndex]);
+            assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
             break;
         case(Sign):
-            internalErrorForLearning[_internalErrorIndex] =
-                    internalErrors[_internalErrorIndex]
-                    / fabs(internalErrors[_internalErrorIndex]);
+            if(internalErrors[_internalErrorIndex] > 0){
+                internalErrorForLearning[_internalErrorIndex] = 1;
+                assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+            }else{
+                if(internalErrors[_internalErrorIndex] < 0){
+                    internalErrorForLearning[_internalErrorIndex] = -1;
+                    assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                }else{
+                    internalErrorForLearning[_internalErrorIndex] = 0;
+                    assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                }
+            }
             break;
     }
 }
 
 double Neuron::getInternalErrors(int _internalErrorIndex){
-    assert((_internalErrorIndex>=0) && (_internalErrorIndex<nInternalErrors));
-    assert(internalErrorIsSet[_internalErrorIndex] == true);
+    assert((_internalErrorIndex>=0) && (_internalErrorIndex<nInternalErrors) && "Neuron failed");
+    assert(internalErrorIsSet[_internalErrorIndex] == true && "Neuron failed");
     return internalErrors[_internalErrorIndex];
 }
 
 void Neuron::updateWeights(){
     for(int i=0; i<nInternalErrors; i++){
-        assert(internalErrorMethods[i] != 0);
+        assert(internalErrorMethods[i] != 0 && "Neuron failed");
     }
     weightSum = 0;
     maxWeight = 0;
@@ -218,7 +229,9 @@ void Neuron::updateWeights(){
     }
 
     for (int i=0; i<nInputs; i++){
+        assert(isfinite(inputs[i]) && isfinite(resultantInternalError));
         weights[i] += learningRate * inputs[i] * resultantInternalError * force;
+        assert(isfinite(weights[i]));
         weightSum += fabs(weights[i]);
         maxWeight = max (maxWeight,weights[i]);
         minWeight = min (maxWeight,weights[i]);
@@ -300,12 +313,12 @@ int Neuron::getnInputs(){
 }
 
 double Neuron::getWeights(int _inputIndex){
-    assert((_inputIndex>=0)&&(_inputIndex<nInputs));
+    assert((_inputIndex>=0)&&(_inputIndex<nInputs) && "Neuron failed");
     return (weights[_inputIndex]);
 }
 
 double Neuron::getInitWeights(int _inputIndex){
-    assert((_inputIndex>=0)&&(_inputIndex<nInputs));
+    assert((_inputIndex>=0)&&(_inputIndex<nInputs) && "Neuron failed");
     return (initialWeights[_inputIndex]);
 }
 

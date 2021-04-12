@@ -161,6 +161,7 @@ double Layer::getWeightChange(){
 }
 
 double Layer::getWeightDistance(){
+    getWeightChange();
     return sqrt(weightChange);
 }
 
@@ -186,7 +187,7 @@ void Layer::snapWeights(){
     std::ofstream wfile;
     char l = '0';
     l += myLayerIndex + 1;
-    string name = "wL";
+    string name = "layerWeight";
     name += l;
     name += ".csv";
     wfile.open(name);

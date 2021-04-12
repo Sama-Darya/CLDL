@@ -54,6 +54,7 @@ public:
 private:
     // initialisation:
     int nInputs = 0;
+    double weightBoost = 1000;
     int myLayerIndex = 0;
     int myNeuronIndex = 0;
 
@@ -67,7 +68,7 @@ private:
     bool *internalErrorIsSet = nullptr;
     int countInputErrors = 0;
     int* internalErrorMethods = nullptr;
-    double resultantInternalError = 0;
+    double resultantInternalError = 1;
 
 
     int iHaveReported = 0;

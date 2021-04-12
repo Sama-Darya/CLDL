@@ -122,7 +122,7 @@ int Neuron::calcOutput(int _layerHasReported){
     }
     sum += bias;
     if (myLayerIndex == 0){
-        sum = sum * 0.01;
+        sum = sum / weightBoost;
     }
     assert(std::isfinite(sum) && "Neuron failed");
     output = doActivation(sum);
@@ -160,9 +160,13 @@ void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,
                         fabs(internalErrors[_internalErrorIndex]);
                 break;
             case(Sign):
-                internalErrorForLearning[_internalErrorIndex] =
-                        internalErrors[_internalErrorIndex]
-                        / fabs(internalErrors[_internalErrorIndex]);
+                if(internalErrors[_internalErrorIndex] >= 0){
+                    internalErrorForLearning[_internalErrorIndex] = 1;
+                    assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                }else{
+                    internalErrorForLearning[_internalErrorIndex] = -1;
+                    assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                }
                 break;
         }
         countInputErrors = 0; // set the counter to zero again
@@ -171,12 +175,14 @@ void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,
 
 void Neuron::setInternalError(int _internalErrorIndex, double _sumValue,
                               errorMethod _errorMethod){
+//    cout << "index: " << _internalErrorIndex << " value: " << _sumValue << endl;
     assert((std::isfinite(_sumValue)) && (_internalErrorIndex<nInternalErrors)
         && (_internalErrorIndex>=0) && "Neuron: set internal error failed");
     internalErrors[_internalErrorIndex] = _sumValue * doActivationPrime(sum);
     assert(std::isfinite(internalErrors[_internalErrorIndex]) && "Neuron failed");
     internalErrorIsSet[_internalErrorIndex] = true;
     internalErrorMethods[_internalErrorIndex] = _errorMethod;
+//    cout << "being called? " << endl;
     switch(_errorMethod){
         case(Value):
             internalErrorForLearning[_internalErrorIndex] =
@@ -189,20 +195,15 @@ void Neuron::setInternalError(int _internalErrorIndex, double _sumValue,
             assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
             break;
         case(Sign):
-            if(internalErrors[_internalErrorIndex] > 0){
+            if(internalErrors[_internalErrorIndex] >= 0){
                 internalErrorForLearning[_internalErrorIndex] = 1;
                 assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
             }else{
-                if(internalErrors[_internalErrorIndex] < 0){
-                    internalErrorForLearning[_internalErrorIndex] = -1;
-                    assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
-                }else{
-                    internalErrorForLearning[_internalErrorIndex] = 0;
-                    assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                internalErrorForLearning[_internalErrorIndex] = -1;
+                assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
                 }
-            }
             break;
-    }
+        }
 }
 
 double Neuron::getInternalErrors(int _internalErrorIndex){
@@ -220,13 +221,14 @@ void Neuron::updateWeights(){
     minWeight = 0;
     double force = 1;
     if (myLayerIndex == 0){
-        force  = 1; //forces a bigger change on the first layer for visualisation in greyscale
+        force  = weightBoost; //forces a bigger change on the first layer for visualisation in greyscale
     }
 
-    resultantInternalError = 0;
+    resultantInternalError = 1;
     for (int j = 0 ; j<nInternalErrors; j++){
         resultantInternalError *= internalErrorForLearning[j];
     }
+//    cout << "ie: " << resultantInternalError << endl;
 
     for (int i=0; i<nInputs; i++){
         assert(isfinite(inputs[i]) && isfinite(resultantInternalError));
@@ -301,10 +303,12 @@ double Neuron::getWeightChange(){
         weightsDifference = weights[i] - initialWeights[i];
         weightChange += pow(weightsDifference,2);
     }
+//    cout << "wc: " << weightChange << endl;
     return (weightChange);
 }
 
 double Neuron::getWeightDistance(){
+    getWeightChange();
     return sqrt(weightChange);
 }
 

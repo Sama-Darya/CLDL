@@ -82,6 +82,7 @@ void Net::propInputs(){
 void Net::masterPropagate(std::vector<int> &injectionLayerIndex,
                           int _internalErrorIndex, propagationDirection _propDir,
                           double _controlError, Neuron::errorMethod _errorMethod){
+//    cout << "master: " << _controlError <<endl;
     switch(_propDir){
         case BACKWARD:
             std::sort(injectionLayerIndex.rbegin(), injectionLayerIndex.rend());
@@ -137,6 +138,7 @@ void Net::customBackProp(std::vector<int> &injectionLayerIndex,
     int injectionCount = 0;
     controlError = _controlError;
     for(int i=0; i<layers[nextInjectionLayerIndex]->getnNeurons(); i++){ //set the internal error in the final layer
+//        cout << "here? " << endl;
         layers[nextInjectionLayerIndex]->setInternalErrors(_internalErrorIndex,
                                                            controlError, i, _errorMethod);
     }
@@ -224,6 +226,10 @@ void Net::saveWeights(){
     for (int i=0; i<nLayers; i++){
         layers[i]->saveWeights();
     }
+}
+
+void Net::snapFistLayerWeights(){
+        layers[0]->snapWeights();
 }
 
 void Net::snapWeights(){

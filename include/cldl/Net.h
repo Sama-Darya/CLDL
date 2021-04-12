@@ -57,6 +57,7 @@ public:
     double getWeights(int _layerIndex, int _neuronIndex, int _weightIndex);
     int getnNeurons();
     void saveWeights();
+    void snapFistLayerWeights();
     void snapWeights();
     void printNetwork();
 

@@ -37,6 +37,7 @@ public:
     double getOutput();
     double getSumOutput();
     double getWeights(int _inputIndex);
+    double getInputs(int _inputIndex);
     double getInitWeights(int _inputIndex);
     double getWeightChange();
     double getMaxWeight();
@@ -44,6 +45,7 @@ public:
     double getSumWeight();
     double getWeightDistance();
     int getnInputs();
+
     void saveWeights();
     void printNeuron();
     inline void setWeight(int _index, double _weight) {
@@ -57,10 +59,8 @@ private:
     double weightBoost = 1000;
     int myLayerIndex = 0;
     int myNeuronIndex = 0;
-
     double *initialWeights = nullptr;
     double learningRate = 0;
-
     double *inputErrors = nullptr;
     int nInternalErrors = 0;
     double *internalErrors = nullptr;

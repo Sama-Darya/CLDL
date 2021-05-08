@@ -56,6 +56,7 @@ public:
     double getLayerWeightDistance(int _layerIndex);
     double getWeights(int _layerIndex, int _neuronIndex, int _weightIndex);
     int getnNeurons();
+    double getInputs(int _inputIndex);
     void saveWeights();
     void snapFistLayerWeights();
     void snapWeights();

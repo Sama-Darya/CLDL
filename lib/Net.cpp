@@ -79,6 +79,8 @@ void Net::propInputs(){
      * but this is not fed into any further layer*/
 }
 
+
+
 void Net::masterPropagate(std::vector<int> &injectionLayerIndex,
                           int _internalErrorIndex, propagationDirection _propDir,
                           double _controlError, Neuron::errorMethod _errorMethod){
@@ -216,6 +218,10 @@ double Net::getWeights(int _layerIndex, int _neuronIndex, int _weightIndex){
 
 int Net::getnNeurons(){
     return (nNeurons);
+}
+
+double Net::getInputs(int _inputIndex){
+    return inputs[_inputIndex];
 }
 
 //*************************************************************************************

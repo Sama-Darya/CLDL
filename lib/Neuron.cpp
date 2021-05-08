@@ -321,6 +321,11 @@ double Neuron::getWeights(int _inputIndex){
     return (weights[_inputIndex]);
 }
 
+double Neuron::getInputs(int _inputIndex){
+    assert((_inputIndex>=0)&&(_inputIndex<nInputs) && "Neuron failed");
+    return (inputs[_inputIndex]);
+}
+
 double Neuron::getInitWeights(int _inputIndex){
     assert((_inputIndex>=0)&&(_inputIndex<nInputs) && "Neuron failed");
     return (initialWeights[_inputIndex]);

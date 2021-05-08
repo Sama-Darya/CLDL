@@ -20,11 +20,11 @@ public:
 
 private:
     Net *net;
-    int nLayers = 3;
+    int nLayers = 2;
     int* nNeurons = nullptr;
     int nInputs = 2;
     double* inputs = nullptr;
-    double controlError = 1;
+    double controlError = 5;
     double learningRate = 1;
     double output = 0;
 

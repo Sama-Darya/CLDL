@@ -73,7 +73,7 @@ void unitTest::test_net_masterPropagation(){
     printIntErrors();
     net->masterPropagate(injectionLayers, 0,
                                      Net::BACKWARD, controlError,
-                                     Neuron::Value);
+                                     Neuron::Sign);
     printIntErrors();
     printWeights();
     net->updateWeights();

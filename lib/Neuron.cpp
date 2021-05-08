@@ -154,18 +154,26 @@ void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,
             case(Value):
                 internalErrorForLearning[_internalErrorIndex] =
                         internalErrors[_internalErrorIndex];
+                assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
                 break;
             case(Absolute):
                 internalErrorForLearning[_internalErrorIndex] =
                         fabs(internalErrors[_internalErrorIndex]);
+                assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
                 break;
             case(Sign):
-                if(internalErrors[_internalErrorIndex] >= 0){
-                    internalErrorForLearning[_internalErrorIndex] = 1;
+                if(internalErrors[_internalErrorIndex] == 0){
+                    internalErrorForLearning[_internalErrorIndex] = 0;
                     assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
                 }else{
-                    internalErrorForLearning[_internalErrorIndex] = -1;
-                    assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                    if(internalErrors[_internalErrorIndex] > 0){
+                        internalErrorForLearning[_internalErrorIndex] = 1;
+                        assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+
+                    }else{
+                        internalErrorForLearning[_internalErrorIndex] = -1;
+                        assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                    }
                 }
                 break;
         }
@@ -195,12 +203,18 @@ void Neuron::setInternalError(int _internalErrorIndex, double _sumValue,
             assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
             break;
         case(Sign):
-            if(internalErrors[_internalErrorIndex] >= 0){
-                internalErrorForLearning[_internalErrorIndex] = 1;
+            if(internalErrors[_internalErrorIndex] == 0){
+                internalErrorForLearning[_internalErrorIndex] = 0;
                 assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
             }else{
-                internalErrorForLearning[_internalErrorIndex] = -1;
-                assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                if(internalErrors[_internalErrorIndex] > 0){
+                    internalErrorForLearning[_internalErrorIndex] = 1;
+                    assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+
+                }else{
+                    internalErrorForLearning[_internalErrorIndex] = -1;
+                    assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                }
                 }
             break;
         }

@@ -15,7 +15,7 @@ class Neuron {
 public:
     Neuron(int _nInputs, int _nrawInternalErrors);
     ~Neuron();
-    double getrawInternalErrors(int _internalErrorIndex);
+    double getRawInternalErrors(int _internalErrorIndex);
     enum biasInitMethod {B_NONE = 0, B_RANDOM = 1};
     enum weightInitMethod {W_ZEROS = 0, W_ONES = 1, W_RANDOM = 2};
     enum actMethod {Act_Sigmoid = 0, Act_Tanh = 1, Act_NONE = 2};

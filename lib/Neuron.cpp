@@ -138,7 +138,7 @@ int Neuron::calcOutput(int _layerHasReported){
 void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,
                                                      double _value, int _internalErrorIndex,
                                                      errorMethod _errorMethod){
-    assert((_inputIndex>=0)&&(_inputIndex<nInputs) && "Neuron failed");
+    assert((_inputIndex>=0)&&(_inputIndex<nInputs) && "Inadequate number of inputs provided");
     inputErrors[_inputIndex] = _value;
     countInputErrors += 1;
     if (countInputErrors == nInputs){
@@ -222,7 +222,7 @@ void Neuron::setInternalError(int _internalErrorIndex, double _sumValue,
         }
 }
 
-double Neuron::getrawInternalErrors(int _internalErrorIndex){
+double Neuron::getRawInternalErrors(int _internalErrorIndex){
     assert((_internalErrorIndex>=0) && (_internalErrorIndex<numBuses) && "Neuron failed");
     assert(busIsSet[_internalErrorIndex] == true && "Neuron failed");
     return rawInternalErrors[_internalErrorIndex];
@@ -231,6 +231,7 @@ double Neuron::getrawInternalErrors(int _internalErrorIndex){
 void Neuron::updateWeights(){
     for(int i=0; i<numBuses; i++){
         cout<< i << " value: " << busMethod[i] << " : got here 16th Oct............" <<endl;
+        cout<< myNeuronIndex << "    " << myLayerIndex << endl;
         assert(busMethod[i] != 0 && "Neuron failed");
         assert( busIsSet[i] == true && "Neuron: Inadequate number of propagation lines.");
     }

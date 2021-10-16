@@ -120,7 +120,7 @@ void Layer::setInternalErrors(int _internalErrorIndex, double _sumValue,
 
 double Layer::getInternalErrors(int _internalErrorIndex, int _neuronIndex){
     assert((_neuronIndex<nNeurons) && (_neuronIndex>=0) && "Layer failed");
-    return neurons[_neuronIndex]->getInternalErrors(_internalErrorIndex);
+    return neurons[_neuronIndex]->getRawInternalErrors(_internalErrorIndex);
 }
 
 void Layer::updateWeights(){

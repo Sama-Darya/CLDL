@@ -132,14 +132,15 @@ void Net::customForwardProp(std::vector<int> &injectionLayerIndex,
 void Net::customBackProp(std::vector<int> &injectionLayerIndex,
                          int _internalErrorIndex, double _controlError,
                          Neuron::errorMethod _errorMethod){
+    assert(injectionLayerIndex[0] == nLayers-1 && "Backpropagation must start form the last layer, include (Nlayers - 1) in your array");
     double tempError = 0;
     double tempWeight = 0;
     int nextInjectionLayerIndex = injectionLayerIndex[0];
     int injectionCount = 0;
     controlError = _controlError;
-    for(int i=0; i<layers[nextInjectionLayerIndex]->getnNeurons(); i++){ //set the internal error in the final layer
+    for(int neuronIndex=0; neuronIndex < layers[nextInjectionLayerIndex]->getnNeurons(); neuronIndex++){ //set the internal error in the final layer
         layers[nextInjectionLayerIndex]->setInternalErrors(_internalErrorIndex,
-                                                           controlError, i, _errorMethod);
+                                                           controlError, neuronIndex, _errorMethod);
     }
     for (int L_index = nextInjectionLayerIndex; L_index > 0 ; L_index--){ //iterate through the layers
         for (int wn_index = 0; wn_index < layers[L_index-1]->getnNeurons(); wn_index++){ //iterate through the inputs to each layer

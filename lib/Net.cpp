@@ -104,6 +104,7 @@ void Net::masterPropagate(std::vector<int> &injectionLayerIndex,
 void Net::customForwardProp(std::vector<int> &injectionLayerIndex,
                             int _internalErrorIndex, double _controlError,
                             Neuron::errorMethod _errorMethod){
+    assert(injectionLayerIndex[0] == 0 && "Forward propagation must start form the first layer, include (0) in your array");
     int injectionCount = 0;
     int nextInjectionLayerIndex = injectionLayerIndex[0];
     controlError = _controlError;

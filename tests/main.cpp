@@ -10,7 +10,7 @@ int main(){
 //    unitest->test_net_masterPropagation();
 const int NLAYERS = 2;
 Net* net;
-int nPROPAGATIONS = 1;
+int nPROPAGATIONS = 2;
 const int NetnInputs = 1;
 double inputs[NetnInputs] = {1};
 int N1 = 1;
@@ -22,17 +22,21 @@ double LEARNINGRATE = 1;
 net->setLearningRate(LEARNINGRATE);
 std::vector<int> injectionLayers_BackProp;
 injectionLayers_BackProp.reserve(1);
-injectionLayers_BackProp = {1};
+injectionLayers_BackProp = {NLAYERS-1};
+std::vector<int> injectionLayers_ForwardProp;
+injectionLayers_ForwardProp.reserve(1);
+injectionLayers_ForwardProp = {0};
 double error = 1;
 double* pred_pointer = &inputs[0];
 net->setInputs(pred_pointer);
 net->propInputs();
-net->masterPropagate(injectionLayers_BackProp, 0,
+net->masterPropagate(injectionLayers_ForwardProp, 0,
+                     Net::FORWARD, error,
+                     Neuron::Value);
+net->masterPropagate(injectionLayers_BackProp, 1,
                      Net::BACKWARD, error,
                      Neuron::Value);
-net->printNetwork();
 net->updateWeights();
 cout << "*********** updateWeights ***********" << endl;
-net->printNetwork();
 return 0;
 }

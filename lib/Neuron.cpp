@@ -148,7 +148,7 @@ void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,
         }
         assert(std::isfinite(errorSum) && "Neuron failed");
         rawInternalErrors[_internalErrorIndex] = errorSum * doActivationPrime(sum);
-        cout << _internalErrorIndex << " setting this to true second time" <<endl;
+        //cout << _internalErrorIndex << " setting this to true second time" <<endl;
         busIsSet[_internalErrorIndex] = true;
         busMethod[_internalErrorIndex] = _errorMethod;
         switch(_errorMethod){
@@ -189,7 +189,7 @@ void Neuron::setInternalError(int _internalErrorIndex, double _sumValue,
         && (_internalErrorIndex>=0) && "Neuron: set internal error failed");
     rawInternalErrors[_internalErrorIndex] = _sumValue * doActivationPrime(sum);
     assert(std::isfinite(rawInternalErrors[_internalErrorIndex]) && "Neuron failed");
-    cout << _internalErrorIndex << " setting this to true" <<endl;
+    //cout << _internalErrorIndex << " setting this to true" <<endl;
     busIsSet[_internalErrorIndex] = true;
     busMethod[_internalErrorIndex] = _errorMethod;
 //    cout << "being called? " << endl;
@@ -230,8 +230,8 @@ double Neuron::getRawInternalErrors(int _internalErrorIndex){
 
 void Neuron::updateWeights(){
     for(int i=0; i<numBuses; i++){
-        cout<< i << " value: " << busMethod[i] << " : got here 16th Oct............" <<endl;
-        cout<< myNeuronIndex << "    " << myLayerIndex << endl;
+        //cout<< i << " value: " << busMethod[i] << " : got here 16th Oct............" <<endl;
+        //cout<< myNeuronIndex << "    " << myLayerIndex << endl;
         assert(busMethod[i] != 0 && "Neuron failed");
         assert( busIsSet[i] == true && "Neuron: Inadequate number of propagation lines.");
     }

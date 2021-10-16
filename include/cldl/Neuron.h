@@ -13,9 +13,9 @@
 using namespace std;
 class Neuron {
 public:
-    Neuron(int _nInputs, int _nInternalErrors);
+    Neuron(int _nInputs, int _nrawInternalErrors);
     ~Neuron();
-    double getInternalErrors(int _internalErrorIndex);
+    double getrawInternalErrors(int _internalErrorIndex);
     enum biasInitMethod {B_NONE = 0, B_RANDOM = 1};
     enum weightInitMethod {W_ZEROS = 0, W_ONES = 1, W_RANDOM = 2};
     enum actMethod {Act_Sigmoid = 0, Act_Tanh = 1, Act_NONE = 2};
@@ -62,15 +62,14 @@ private:
     double *initialWeights = nullptr;
     double learningRate = 0;
     double *inputErrors = nullptr;
-    int nInternalErrors = 0;
-    double *internalErrors = nullptr;
-    double* internalErrorForLearning = nullptr;
-    bool *internalErrorIsSet = nullptr;
+    int numBuses = 0;
+    double *rawInternalErrors = nullptr;
+    double* internalErrors = nullptr;
+    bool *busIsSet = nullptr;
     int countInputErrors = 0;
-    int* internalErrorMethods = nullptr;
+    int* busMethod = nullptr;
     double resultantInternalError = 1;
-
-
+    
     int iHaveReported = 0;
     double *inputs = nullptr;
     double bias = 0;

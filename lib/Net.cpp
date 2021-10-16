@@ -13,6 +13,7 @@ using namespace std;
 //*************************************************************************************
 
 Net::Net(int _nLayers, int* _nNeurons, int _nInputs, int _nInternalErrors){
+    cout << "*******************************************************************************************************" << endl;
     nLayers = _nLayers; //no. of layers including inputs and outputs layers
     layers= new Layer*[nLayers];
     nInternalErrors = _nInternalErrors;
@@ -21,7 +22,8 @@ Net::Net(int _nLayers, int* _nNeurons, int _nInputs, int _nInternalErrors){
     //cout << "nInputs: " << nInputs << endl;
     int nInput = 0; //temporary variable to use within the scope of for loop
     for (int i=0; i<nLayers; i++){
-        int numNeurons= *nNeuronsp; //no. neurons in this layer
+        int numNeurons= *nNeuronsp; //no.
+        // neurons in this layer
         if (i==0){nInput=nInputs;}
         /* no. inputs to the first layer is equal to no. inputs to the network */
         layers[i]= new Layer(numNeurons, nInput, nInternalErrors);
@@ -79,12 +81,9 @@ void Net::propInputs(){
      * but this is not fed into any further layer*/
 }
 
-
-
 void Net::masterPropagate(std::vector<int> &injectionLayerIndex,
                           int _internalErrorIndex, propagationDirection _propDir,
                           double _controlError, Neuron::errorMethod _errorMethod){
-//    cout << "master: " << _controlError <<endl;
     switch(_propDir){
         case BACKWARD:
             std::sort(injectionLayerIndex.rbegin(), injectionLayerIndex.rend());
@@ -105,7 +104,6 @@ void Net::masterPropagate(std::vector<int> &injectionLayerIndex,
 void Net::customForwardProp(std::vector<int> &injectionLayerIndex,
                             int _internalErrorIndex, double _controlError,
                             Neuron::errorMethod _errorMethod){
-//    cout<< "got here" <<endl;
     int injectionCount = 0;
     int nextInjectionLayerIndex = injectionLayerIndex[0];
     controlError = _controlError;
@@ -140,7 +138,6 @@ void Net::customBackProp(std::vector<int> &injectionLayerIndex,
     int injectionCount = 0;
     controlError = _controlError;
     for(int i=0; i<layers[nextInjectionLayerIndex]->getnNeurons(); i++){ //set the internal error in the final layer
-//        cout << "here? " << endl;
         layers[nextInjectionLayerIndex]->setInternalErrors(_internalErrorIndex,
                                                            controlError, i, _errorMethod);
     }

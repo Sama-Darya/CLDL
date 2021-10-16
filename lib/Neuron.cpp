@@ -13,21 +13,21 @@ using namespace std;
 // constructor de-constructor
 //*************************************************************************************
 
-Neuron::Neuron(int _nInputs, int _nInternalErrors)
+Neuron::Neuron(int _nInputs, int _numBuses)
 {
     nInputs=_nInputs;
     weights = new double[nInputs];
     initialWeights = new double[nInputs];
     inputs = new double[nInputs];
     inputErrors = new double[nInputs];
-    nInternalErrors = _nInternalErrors;
-    internalErrors = new double[nInternalErrors];
-    internalErrorIsSet = new bool[nInternalErrors];
-    internalErrorMethods = new int(nInternalErrors);
-    internalErrorForLearning = new double(nInternalErrors);
-    for (int i = 0 ; i <nInternalErrors; i++){
-        internalErrorIsSet[i] = false;
-        internalErrorMethods[i] = 0;
+    numBuses = _numBuses;
+    rawInternalErrors = new double[numBuses];
+    busIsSet = new bool[numBuses];
+    busMethod = new int(numBuses);
+    internalErrors = new double(numBuses);
+    for (int i = 0 ; i <numBuses; i++){
+        busIsSet[i] = false;
+        busMethod[i] = 0;
     }
 }
 
@@ -36,8 +36,8 @@ Neuron::~Neuron(){
     delete [] initialWeights;
     delete [] inputs;
     delete [] inputErrors;
-    delete [] internalErrors;
-    delete [] internalErrorIsSet;
+    delete [] rawInternalErrors;
+    delete [] busIsSet;
 }
 
 //*************************************************************************************
@@ -147,32 +147,33 @@ void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,
             errorSum += inputErrors[i] * weights[i];
         }
         assert(std::isfinite(errorSum) && "Neuron failed");
-        internalErrors[_internalErrorIndex] = errorSum * doActivationPrime(sum);
-        internalErrorIsSet[_internalErrorIndex] = true;
-        internalErrorMethods[_internalErrorIndex] = _errorMethod;
+        rawInternalErrors[_internalErrorIndex] = errorSum * doActivationPrime(sum);
+        cout << _internalErrorIndex << " setting this to true second time" <<endl;
+        busIsSet[_internalErrorIndex] = true;
+        busMethod[_internalErrorIndex] = _errorMethod;
         switch(_errorMethod){
             case(Value):
-                internalErrorForLearning[_internalErrorIndex] =
-                        internalErrors[_internalErrorIndex];
-                assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                internalErrors[_internalErrorIndex] =
+                        rawInternalErrors[_internalErrorIndex];
+                assert(isfinite(internalErrors[_internalErrorIndex]));
                 break;
             case(Absolute):
-                internalErrorForLearning[_internalErrorIndex] =
-                        fabs(internalErrors[_internalErrorIndex]);
-                assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                internalErrors[_internalErrorIndex] =
+                        fabs(rawInternalErrors[_internalErrorIndex]);
+                assert(isfinite(internalErrors[_internalErrorIndex]));
                 break;
             case(Sign):
-                if(internalErrors[_internalErrorIndex] == 0){
-                    internalErrorForLearning[_internalErrorIndex] = 0;
-                    assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                if(rawInternalErrors[_internalErrorIndex] == 0){
+                    internalErrors[_internalErrorIndex] = 0;
+                    assert(isfinite(internalErrors[_internalErrorIndex]));
                 }else{
-                    if(internalErrors[_internalErrorIndex] > 0){
-                        internalErrorForLearning[_internalErrorIndex] = 1;
-                        assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                    if(rawInternalErrors[_internalErrorIndex] > 0){
+                        internalErrors[_internalErrorIndex] = 1;
+                        assert(isfinite(internalErrors[_internalErrorIndex]));
 
                     }else{
-                        internalErrorForLearning[_internalErrorIndex] = -1;
-                        assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                        internalErrors[_internalErrorIndex] = -1;
+                        assert(isfinite(internalErrors[_internalErrorIndex]));
                     }
                 }
                 break;
@@ -184,51 +185,54 @@ void Neuron::setErrorInputsAndCalculateInternalError(int _inputIndex,
 void Neuron::setInternalError(int _internalErrorIndex, double _sumValue,
                               errorMethod _errorMethod){
 //    cout << "index: " << _internalErrorIndex << " value: " << _sumValue << endl;
-    assert((std::isfinite(_sumValue)) && (_internalErrorIndex<nInternalErrors)
+    assert((std::isfinite(_sumValue)) && (_internalErrorIndex<numBuses)
         && (_internalErrorIndex>=0) && "Neuron: set internal error failed");
-    internalErrors[_internalErrorIndex] = _sumValue * doActivationPrime(sum);
-    assert(std::isfinite(internalErrors[_internalErrorIndex]) && "Neuron failed");
-    internalErrorIsSet[_internalErrorIndex] = true;
-    internalErrorMethods[_internalErrorIndex] = _errorMethod;
+    rawInternalErrors[_internalErrorIndex] = _sumValue * doActivationPrime(sum);
+    assert(std::isfinite(rawInternalErrors[_internalErrorIndex]) && "Neuron failed");
+    cout << _internalErrorIndex << " setting this to true" <<endl;
+    busIsSet[_internalErrorIndex] = true;
+    busMethod[_internalErrorIndex] = _errorMethod;
 //    cout << "being called? " << endl;
     switch(_errorMethod){
         case(Value):
-            internalErrorForLearning[_internalErrorIndex] =
-                    internalErrors[_internalErrorIndex];
-            assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+            internalErrors[_internalErrorIndex] =
+                    rawInternalErrors[_internalErrorIndex];
+            assert(isfinite(internalErrors[_internalErrorIndex]));
             break;
         case(Absolute):
-            internalErrorForLearning[_internalErrorIndex] =
-                    fabs(internalErrors[_internalErrorIndex]);
-            assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+            internalErrors[_internalErrorIndex] =
+                    fabs(rawInternalErrors[_internalErrorIndex]);
+            assert(isfinite(internalErrors[_internalErrorIndex]));
             break;
         case(Sign):
-            if(internalErrors[_internalErrorIndex] == 0){
-                internalErrorForLearning[_internalErrorIndex] = 0;
-                assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+            if(rawInternalErrors[_internalErrorIndex] == 0){
+                internalErrors[_internalErrorIndex] = 0;
+                assert(isfinite(internalErrors[_internalErrorIndex]));
             }else{
-                if(internalErrors[_internalErrorIndex] > 0){
-                    internalErrorForLearning[_internalErrorIndex] = 1;
-                    assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                if(rawInternalErrors[_internalErrorIndex] > 0){
+                    internalErrors[_internalErrorIndex] = 1;
+                    assert(isfinite(internalErrors[_internalErrorIndex]));
 
                 }else{
-                    internalErrorForLearning[_internalErrorIndex] = -1;
-                    assert(isfinite(internalErrorForLearning[_internalErrorIndex]));
+                    internalErrors[_internalErrorIndex] = -1;
+                    assert(isfinite(internalErrors[_internalErrorIndex]));
                 }
                 }
             break;
         }
 }
 
-double Neuron::getInternalErrors(int _internalErrorIndex){
-    assert((_internalErrorIndex>=0) && (_internalErrorIndex<nInternalErrors) && "Neuron failed");
-    assert(internalErrorIsSet[_internalErrorIndex] == true && "Neuron failed");
-    return internalErrors[_internalErrorIndex];
+double Neuron::getrawInternalErrors(int _internalErrorIndex){
+    assert((_internalErrorIndex>=0) && (_internalErrorIndex<numBuses) && "Neuron failed");
+    assert(busIsSet[_internalErrorIndex] == true && "Neuron failed");
+    return rawInternalErrors[_internalErrorIndex];
 }
 
 void Neuron::updateWeights(){
-    for(int i=0; i<nInternalErrors; i++){
-        assert(internalErrorMethods[i] != 0 && "Neuron failed");
+    for(int i=0; i<numBuses; i++){
+        cout<< i << " value: " << busMethod[i] << " : got here 16th Oct............" <<endl;
+        assert(busMethod[i] != 0 && "Neuron failed");
+        assert( busIsSet[i] == true && "Neuron: Inadequate number of propagation lines.");
     }
     weightSum = 0;
     maxWeight = 0;
@@ -239,8 +243,8 @@ void Neuron::updateWeights(){
     }
 
     resultantInternalError = 1;
-    for (int j = 0 ; j<nInternalErrors; j++){
-        resultantInternalError *= internalErrorForLearning[j];
+    for (int j = 0 ; j<numBuses; j++){
+        resultantInternalError *= internalErrors[j];
     }
 //    cout << "ie: " << resultantInternalError << endl;
 

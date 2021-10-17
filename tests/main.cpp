@@ -8,13 +8,13 @@ int main(){
 //    unitest->test_net_setInputs();
 //    unitest->test_net_porpInputs();
 //    unitest->test_net_masterPropagation();
-const int NLAYERS = 2;
+const int NLAYERS = 5;
 Net* net;
 int nPROPAGATIONS = 2;
 const int NetnInputs = 1;
 double inputs[NetnInputs] = {1};
 int N1 = 1;
-int nNeurons[NLAYERS]={2,1};
+int nNeurons[NLAYERS]={5,4,3,2,1};
 int* nNeuronsp=nNeurons;
 net = new Net(NLAYERS, nNeuronsp, NetnInputs, nPROPAGATIONS);
 net->initNetwork(Neuron::W_ONES, Neuron::B_NONE, Neuron::Act_Sigmoid);

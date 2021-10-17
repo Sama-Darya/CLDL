@@ -8,27 +8,22 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
-
+#include <cassert>
 using namespace std;
 
 void bpThread::run() {
-   cout << "inside of the thread: " <<offset << endl;
-    //        for (int wn_index = 0; wn_index < layers[L_index-1]->getnNeurons(); wn_index++){ //iterate through the inputs to each layer
-//            double thisSum = 0.00;
-//            for (int n_index = 0; n_index < layers[L_index]->getnNeurons(); n_index++){ //iterate through the neurons of each layer
-//                if( L_index == nextInjectionLayerIndex){
-//                    assert((injectionCount<=nLayers)&&(injectionCount>=0) && "NET failed");
-//                    tempError = controlError;
-//                    injectionCount += 1;
-//                    nextInjectionLayerIndex = injectionLayerIndex[injectionCount];
-//                }else{
-//                    tempError = layers[L_index]->getInternalErrors(_internalErrorIndex, n_index);
-//                }
-//                tempWeight = layers[L_index]->getWeights(n_index, wn_index);
-//                thisSum += (tempError * tempWeight);
-//            }
-//            assert(std::isfinite(thisSum) && "NET failed");
-//            layers[L_index-1]->setInternalErrors(_internalErrorIndex, thisSum,
-//                                                 wn_index, _errorMethod);
-//        }
+        double thisSum = 0.00;
+        cout << "working on neuron: " << threadIndex << endl;
+    for (int n_index = 0; n_index < layers[layerIndex]->getnNeurons(); n_index++){ //iterate through the neurons of each layer
+        if( inject){
+            tempError = controlError;
+        }else{
+            tempError = layers[layerIndex]->getInternalErrors(internalErrorIndex, n_index);
+        }
+        tempWeight = layers[layerIndex]->getWeights(n_index, threadIndex);
+        thisSum += (tempError * tempWeight);
+    }
+    assert(std::isfinite(thisSum) && "Thread failed");
+    layers[layerIndex-1]->setInternalErrors(internalErrorIndex, thisSum,
+                                                        threadIndex, errorMethod);
 }

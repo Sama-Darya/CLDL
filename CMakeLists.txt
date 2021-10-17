@@ -17,12 +17,15 @@ add_subdirectory(tests)
 set(LIBSRC
   lib/Neuron.cpp
   lib/Net.cpp
-  lib/Layer.cpp)
+  lib/Layer.cpp
+        lib/bpThread.cpp)
 
 set(PRIVATEHEADERS
   include/cldl/Neuron.h
   include/cldl/Net.h
-  include/cldl/Layer.h)
+  include/cldl/Layer.h
+        include/cldl/bpThread.h
+        include/cldl/CppThread.h)
   
 
 if(UNIX)

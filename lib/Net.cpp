@@ -6,7 +6,10 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <thread>
 using namespace std;
+
+
 
 //*************************************************************************************
 //initialisation:
@@ -143,27 +146,64 @@ void Net::customBackProp(std::vector<int> &injectionLayerIndex,
         layers[nextInjectionLayerIndex]->setInternalErrors(_internalErrorIndex,
                                                            controlError, neuronIndex, _errorMethod);
     }
+
     for (int L_index = nextInjectionLayerIndex; L_index > 0 ; L_index--){ //iterate through the layers
-        for (int wn_index = 0; wn_index < layers[L_index-1]->getnNeurons(); wn_index++){ //iterate through the inputs to each layer
-            double thisSum = 0.00;
-            for (int n_index = 0; n_index < layers[L_index]->getnNeurons(); n_index++){ //iterate through the neurons of each layer
-                if( L_index == nextInjectionLayerIndex){
-                    assert((injectionCount<=nLayers)&&(injectionCount>=0) && "NET failed");
-                    tempError = controlError;
-                    injectionCount += 1;
-                    nextInjectionLayerIndex = injectionLayerIndex[injectionCount];
-                }else{
-                    tempError = layers[L_index]->getInternalErrors(_internalErrorIndex, n_index);
-                }
-                tempWeight = layers[L_index]->getWeights(n_index, wn_index);
-                thisSum += (tempError * tempWeight);
-            }
-            assert(std::isfinite(thisSum) && "NET failed");
-            layers[L_index-1]->setInternalErrors(_internalErrorIndex, thisSum,
-                                                 wn_index, _errorMethod);
-          }
+        cout << "for loop: " <<  L_index << endl;
+        bpThread **myBPThread = nullptr;
+        int wn_index = layers[L_index-1]->getnNeurons();
+        cout << wn_index << endl;
+        myBPThread = new bpThread*[wn_index];
+        for (int i = 0; i < wn_index; i++){
+//            cout << "i: " << i << endl;
+            myBPThread[i] = new bpThread(i);
+        }
+        for (int i = 0; i < wn_index; i++ ){
+//            cout << "i: " << i << endl;
+            myBPThread[i]->start();
+        }
+        for (int i = 0; i < wn_index; i++ ){
+            myBPThread[i]->join();
+            delete myBPThread[i];
+        }
+        delete myBPThread;
     }
+
 }
+
+//void Net::customBackProp(std::vector<int> &injectionLayerIndex,
+//                         int _internalErrorIndex, double _controlError,
+//                         Neuron::errorMethod _errorMethod){
+//    assert(injectionLayerIndex[0] == nLayers-1 && "Backpropagation must start form the last layer, include (Nlayers - 1) in your array");
+//    double tempError = 0;
+//    double tempWeight = 0;
+//    int nextInjectionLayerIndex = injectionLayerIndex[0];
+//    int injectionCount = 0;
+//    controlError = _controlError;
+//    for(int neuronIndex=0; neuronIndex < layers[nextInjectionLayerIndex]->getnNeurons(); neuronIndex++){ //set the internal error in the final layer
+//        layers[nextInjectionLayerIndex]->setInternalErrors(_internalErrorIndex,
+//                                                           controlError, neuronIndex, _errorMethod);
+//    }
+//    for (int L_index = nextInjectionLayerIndex; L_index > 0 ; L_index--){ //iterate through the layers
+//        for (int wn_index = 0; wn_index < layers[L_index-1]->getnNeurons(); wn_index++){ //iterate through the inputs to each layer
+//            double thisSum = 0.00;
+//            for (int n_index = 0; n_index < layers[L_index]->getnNeurons(); n_index++){ //iterate through the neurons of each layer
+//                if( L_index == nextInjectionLayerIndex){
+//                    assert((injectionCount<=nLayers)&&(injectionCount>=0) && "NET failed");
+//                    tempError = controlError;
+//                    injectionCount += 1;
+//                    nextInjectionLayerIndex = injectionLayerIndex[injectionCount];
+//                }else{
+//                    tempError = layers[L_index]->getInternalErrors(_internalErrorIndex, n_index);
+//                }
+//                tempWeight = layers[L_index]->getWeights(n_index, wn_index);
+//                thisSum += (tempError * tempWeight);
+//            }
+//            assert(std::isfinite(thisSum) && "NET failed");
+//            layers[L_index-1]->setInternalErrors(_internalErrorIndex, thisSum,
+//                                                 wn_index, _errorMethod);
+//          }
+//    }
+//}
 
 void Net::updateWeights(){
     for (int i=nLayers-1; i>=0; i--){

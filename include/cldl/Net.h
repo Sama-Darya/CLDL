@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "Layer.h"
+#include "bpThread.h"
 
 /** Net is the main class used to set up a neural network used for
  * closed-loop Deep Learning. It initialises all the layers and the
@@ -74,4 +75,5 @@ private:
     const double *inputs = nullptr;
     double controlError = 0;
     double echoError = 0;
+
 };

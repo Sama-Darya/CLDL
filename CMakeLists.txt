@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 set (CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
         set(CMAKE_BUILD_TYPE "Debug")
@@ -29,7 +30,7 @@ if(UNIX)
   add_library(cldl
     SHARED
     ${LIBSRC}
-    )
+          include/cldl/CppThread.h include/cldl/bpThread.h lib/bpThread.cpp)
   
   target_include_directories(cldl PRIVATE cldl)
   

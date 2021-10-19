@@ -14,7 +14,7 @@
 
 class Layer {
 public:
-    Layer(int _nNeurons, int _nInputs, int _nInternalErrors);
+    Layer(int _nNeurons, int _nInputs, int _numBuses);
     ~Layer();
     void initLayer(int _layerIndex, Neuron::weightInitMethod _wim, Neuron::biasInitMethod _bim, Neuron::actMethod _am);
     void setLearningRate(double _learningRate);
@@ -47,7 +47,7 @@ private:
     double learningRate = 0;
     int myLayerIndex = 0;
     Neuron **neurons = nullptr;
-    int nInternalErrors = 0;
+    int numBuses = 0;
     int layerHasReported = 0;
     const double *inputs = nullptr;
     double weightChange=0;

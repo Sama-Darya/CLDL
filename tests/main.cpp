@@ -32,10 +32,10 @@ net->setInputs(pred_pointer);
 net->propInputs();
 net->masterPropagate(injectionLayers_ForwardProp, 0,
                      Net::FORWARD, error,
-                     Neuron::Value);
+                     Neuron::Value, 1);
 net->masterPropagate(injectionLayers_BackProp, 1,
                      Net::BACKWARD, error,
-                     Neuron::Value);
+                     Neuron::Value, 0);
 net->updateWeights();
 cout << "*********** updateWeights ***********" << endl;
 return 0;

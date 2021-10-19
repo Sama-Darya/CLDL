@@ -86,12 +86,17 @@ void Net::propInputs(){
 
 void Net::masterPropagate(std::vector<int> &injectionLayerIndex,
                           int _internalErrorIndex, propagationDirection _propDir,
-                          double _controlError, Neuron::errorMethod _errorMethod){
+                          double _controlError, Neuron::errorMethod _errorMethod, bool _doThread){
     switch(_propDir){
         case BACKWARD:
             std::sort(injectionLayerIndex.rbegin(), injectionLayerIndex.rend());
-            customBackProp(injectionLayerIndex, _internalErrorIndex,
-                           _controlError, _errorMethod);
+            if (_doThread){
+                customBackProp(injectionLayerIndex, _internalErrorIndex,
+                               _controlError, _errorMethod, _doThread);
+            }else{
+                customBackProp(injectionLayerIndex, _internalErrorIndex,
+                               _controlError, _errorMethod);
+            }
             break;
         case FORWARD:
             std::sort(injectionLayerIndex.begin(), injectionLayerIndex.end());
@@ -135,7 +140,7 @@ void Net::customForwardProp(std::vector<int> &injectionLayerIndex,
 
 void Net::customBackProp(std::vector<int> &injectionLayerIndex,
                          int _internalErrorIndex, double _controlError,
-                         Neuron::errorMethod _errorMethod){
+                         Neuron::errorMethod _errorMethod, bool _doThread){
     assert(injectionLayerIndex[0] == nLayers-1 && "Backpropagation must start form the last layer, include (Nlayers - 1) in your array");
     int nextInjectionLayerIndex = injectionLayerIndex[0];
     cout << nextInjectionLayerIndex << endl;
@@ -175,7 +180,6 @@ void Net::customBackProp(std::vector<int> &injectionLayerIndex,
     }
 }
 
-/*
 void Net::customBackProp(std::vector<int> &injectionLayerIndex,
                          int _internalErrorIndex, double _controlError,
                          Neuron::errorMethod _errorMethod){
@@ -210,7 +214,6 @@ void Net::customBackProp(std::vector<int> &injectionLayerIndex,
           }
     }
 }
- */
 
 void Net::updateWeights(){
     for (int i=nLayers-1; i>=0; i--){

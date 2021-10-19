@@ -40,7 +40,10 @@ public:
     void propInputs();
     void masterPropagate(std::vector<int> &injectionLayerIndex,
                          int _internalErrorIndex, propagationDirection _propDir,
-                         double _controlError, Neuron::errorMethod _errorMethod);
+                         double _controlError, Neuron::errorMethod _errorMethod, bool _doThread);
+    void customBackProp(std::vector<int> &startLayerIndex,
+                        int internalErrorIndex, double _controlError,
+                        Neuron::errorMethod _errorMethod,  bool _doThread);
     void customBackProp(std::vector<int> &startLayerIndex,
                         int internalErrorIndex, double _controlError,
                         Neuron::errorMethod _errorMethod);

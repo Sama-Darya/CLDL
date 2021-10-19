@@ -15,16 +15,16 @@
 // constructor de-constructor
 //*************************************************************************************
 
-Layer::Layer(int _nNeurons, int _nInputs, int _nInternalErrors){
+Layer::Layer(int _nNeurons, int _nInputs, int _numBuses){
     nNeurons = _nNeurons; // number of neurons in this layer
     nInputs = _nInputs; // number of inputs to each neuron
     neurons = new Neuron*[nNeurons];
-    nInternalErrors = _nInternalErrors;
+    numBuses = _numBuses;
     /* dynamic allocation of memory to n number of
      * neuron-pointers and returning a pointer, "neurons",
      * to the first element */
     for (int i=0;i<nNeurons;i++){
-        neurons[i]=new Neuron(nInputs, nInternalErrors);
+        neurons[i]=new Neuron(nInputs, numBuses);
     }
     /* each element of "neurons" pointer is itself a pointer
      * to a neuron object with specific no. of inputs*/
@@ -112,7 +112,7 @@ void Layer::setErrorInputsAndCalculateInternalError(int _index,
 void Layer::setInternalErrors(int _internalErrorIndex, double _sumValue,
                               int _neuronIndex, Neuron::errorMethod _errorMethod){
     assert(isfinite(_sumValue) && (_internalErrorIndex >= 0)
-                && (_internalErrorIndex < nInternalErrors) &&
+                && (_internalErrorIndex < numBuses) &&
            (_neuronIndex >= 0) && (_neuronIndex < nNeurons) &&"Layer failed");
     neurons[_neuronIndex]->setInternalError(_internalErrorIndex, _sumValue,
                                             _errorMethod);
